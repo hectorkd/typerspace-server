@@ -1,9 +1,17 @@
 import { Sequelize } from 'sequelize';
+import dotenv from 'dotenv';
 
-const sequelize = new Sequelize('typerspace', 'JD', '', {
-  host: 'localhost',
-  dialect: 'postgres',
-});
+dotenv.config();
+
+const sequelize = new Sequelize(
+  `${process.env.DB_NAME}`,
+  `${process.env.DB_USERNAME}`,
+  `${process.env.DB_PASSWORD}`,
+  {
+    host: 'localhost',
+    dialect: 'postgres',
+  },
+);
 
 (async () => {
   await sequelize.sync();

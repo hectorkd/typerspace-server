@@ -3,7 +3,7 @@ import Text from '../schemas/paragraph';
 
 async function getRandomParagraph(_: Request, res: Response): Promise<void> {
   try {
-    const randomNumber = Math.floor(Math.random() * 7191);
+    const randomNumber = Math.floor(Math.random() * 7191); //TODO: romove hard coded number
     const paragraph = await Text.findOne({ where: { id: randomNumber } }).then(
       (data) => {
         return {
