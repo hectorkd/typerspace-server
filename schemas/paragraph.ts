@@ -1,15 +1,15 @@
 import { DataTypes, Model } from 'sequelize';
 import sequelize from '../models/index';
 
-class Text extends Model {}
+class Paragraph extends Model {}
 
-Text.init(
+Paragraph.init(
   {
-    paragraph: DataTypes.STRING,
-    difficultyRating: DataTypes.INTEGER,
+    text: DataTypes.STRING(1000),
+    difficultyRating: DataTypes.STRING,
     characterLength: DataTypes.STRING,
   },
-  { sequelize, modelName: 'text' },
+  { sequelize, modelName: 'paragraph' },
 );
 
-export default Text;
+export default Paragraph;
