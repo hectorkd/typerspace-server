@@ -8,7 +8,7 @@ async function getRandomParagraph(_: Request, res: Response): Promise<void> {
       where: { id: randomNumber },
     }).then((data) => {
       return {
-        text: data?.get('paragraph'),
+        text: data?.get('text'),
         difficultyRating: data?.get('difficultyRating'),
         characterLength: data?.get('characterLength'),
       };
