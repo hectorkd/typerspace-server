@@ -1,18 +1,18 @@
 import { Request, Response } from 'express';
-import Text from '../schemas/paragraph';
+import Paragraph from '../schemas/paragraph';
 
 async function getRandomParagraph(_: Request, res: Response): Promise<void> {
   try {
     const randomNumber = Math.floor(Math.random() * 7191); //TODO: romove hard coded number
-    const paragraph = await Text.findOne({ where: { id: randomNumber } }).then(
-      (data) => {
-        return {
-          paragraph: data?.get('paragraph'),
-          difficultyRating: data?.get('difficultyRating'),
-          characterLength: data?.get('characterLength'),
-        };
-      },
-    );
+    const paragraph = await Paragraph.findOne({
+      where: { id: randomNumber },
+    }).then((data) => {
+      return {
+        text: data?.get('paragraph'),
+        difficultyRating: data?.get('difficultyRating'),
+        characterLength: data?.get('characterLength'),
+      };
+    });
     res.status(200);
     res.send(`${paragraph}`);
   } catch (err) {
