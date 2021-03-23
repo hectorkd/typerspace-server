@@ -55,8 +55,11 @@ io.on('connection', async (socket) => {
       [socket.id]: { currIndex, currChar },
     };
     gameState[`${roomId}`].positions = newPositions;
-    socket.to(`${roomId}`).emit('positions', gameState[`${roomId}`].positions);
   });
+
+  setInterval(() => {
+    socket.to(`${roomId}`).emit('positions', gameState[`${roomId}`].positions);
+  }, 2000);
 
   socket.on('finishRace', async ({ endTime, correctChar, errorChar }) => {
     console.log('player finished', endTime, correctChar, errorChar);
