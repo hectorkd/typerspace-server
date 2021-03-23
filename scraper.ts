@@ -40,4 +40,5 @@ const scraper = async (url: string) => {
       characterLength: el[1],
     });
   });
+  console.log('Scraping has finished! Yippee!');
 })();
