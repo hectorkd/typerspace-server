@@ -45,7 +45,7 @@ io.on('connection', async (socket) => {
     const timeNow = Date.now();
     const raceStartTime = timeNow + 5000;
     gameState[`${roomId}`].startTime = raceStartTime;
-    io.to(`${roomId}`).emit('startTime', `${raceStartTime}`);
+    io.to(`${roomId}`).emit('startTime', `${timeNow}`);
   });
 
   socket.on('position', ({ currIndex, currChar }) => {
@@ -60,30 +60,25 @@ io.on('connection', async (socket) => {
 
   socket.on(
     'finishRace',
-    async ({
-      endTime,
-      correctChar,
-      errorChar,
-      charLength,
-      allKeyPresses,
-      startTime,
-    }) => {
+    async ({ endTime, startTime, allKeyPresses, length }) => {
+      console.log({ endTime, startTime, allKeyPresses, length });
       // console.log('player finished', endTime, correctChar, errorChar, charLength, allKeyPresses);
-      const results = helperFunctions.calculateWPM(
+      const { finishTime, WPM, accuracy } = helperFunctions.calculateResults(
         endTime,
-        correctChar,
-        errorChar,
-        charLength,
-        allKeyPresses,
         startTime,
+        allKeyPresses,
+        length,
       );
-      gameState[`${roomId}`].users[socketId].gameData = {
-        finishTime: endTime,
-        correctCharacters: correctChar,
-        errorCharacters: errorChar,
-        WPM: results,
+      gameState[`${roomId}`].users[socket.id].gameData = {
+        finishTime,
+        WPM,
+        accuracy,
       };
-      //  io.to(`${roomId}`).emit('results', `${gameState[roomId].users}`)
+      const usersArray = [];
+      for (const user in gameState[`${roomId}`].users) {
+        usersArray.push(gameState[`${roomId}`].users[user]);
+      }
+      io.to(`${roomId}`).emit('results', usersArray);
     },
   );
 });

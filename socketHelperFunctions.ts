@@ -39,33 +39,33 @@ async function joinUser(
 
 function calculateResults(
   endTime: number,
-  correctChar: number,
-  errorChar: number,
-  charLength: number,
+  startTime: string,
   allKeyPresses: number,
-  startTime: number,
+  charLength: number,
 ): IWpmCalculation {
   const { minutes, remainder, time } = calculateTime(endTime, startTime);
+  // console.log({ minutes, remainder, time });
   const wpm = calculateWpm(charLength, time);
+  // console.log('wpm', wpm);
   const accuracy = calculateAccuracy(allKeyPresses, charLength);
   return { finishTime: `${minutes}:${remainder}`, WPM: wpm, accuracy };
 }
 
-function calculateTime(endTime: number, startTime: number) {
-  const seconds = (endTime - startTime) / 1000;
+function calculateTime(endTime: number, startTime: string) {
+  const seconds = Math.round((endTime - parseInt(startTime)) / 1000);
   const minutes = Math.floor(seconds / 60);
-  const remainder = seconds % 60;
+  const remainder = Math.round(seconds % 60);
   const percentageOfMinute = remainder / 60;
   return { minutes, remainder, time: minutes + percentageOfMinute };
 }
 
 function calculateWpm(charLength: number, time: number): number {
-  const wpm = charLength / 5 / time;
+  const wpm = Math.round(charLength / 5 / time);
   return wpm;
 }
 
 function calculateAccuracy(allKeyPresses: number, charLength: number): number {
-  const accuracy = (charLength / allKeyPresses) * 100;
+  const accuracy = Math.round((charLength / allKeyPresses) * 100);
   return accuracy;
 }
 
