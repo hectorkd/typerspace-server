@@ -58,12 +58,34 @@ io.on('connection', async (socket) => {
     socket.to(`${roomId}`).emit('positions', gameState[`${roomId}`].positions);
   });
 
-  socket.on('finishRace', async ({ endTime, correctChar, errorChar }) => {
-    console.log('player finished', endTime, correctChar, errorChar);
-    //  const results = helperFunction.calculateResults(userInfo)
-    //  gameState[roomId].users[socketId].gameData = results;
-    //  io.to(`${roomId}`).emit('results', `${gameState[roomId].users}`)
-  });
+  socket.on(
+    'finishRace',
+    async ({
+      endTime,
+      correctChar,
+      errorChar,
+      charLength,
+      allKeyPresses,
+      startTime,
+    }) => {
+      // console.log('player finished', endTime, correctChar, errorChar, charLength, allKeyPresses);
+      const results = helperFunctions.calculateWPM(
+        endTime,
+        correctChar,
+        errorChar,
+        charLength,
+        allKeyPresses,
+        startTime,
+      );
+      gameState[`${roomId}`].users[socketId].gameData = {
+        finishTime: endTime,
+        correctCharacters: correctChar,
+        errorCharacters: errorChar,
+        WPM: results,
+      };
+      //  io.to(`${roomId}`).emit('results', `${gameState[roomId].users}`)
+    },
+  );
 });
 
 export default server;
