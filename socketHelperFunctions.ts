@@ -44,11 +44,12 @@ function calculateResults(
   charLength: number,
 ): IWpmCalculation {
   const { minutes, remainder, time } = calculateTime(endTime, startTime);
+  const seconds = remainder < 10 ? `0${remainder}` : remainder;
   // console.log({ minutes, remainder, time });
   const wpm = calculateWpm(charLength, time);
   // console.log('wpm', wpm);
   const accuracy = calculateAccuracy(allKeyPresses, charLength);
-  return { finishTime: `${minutes}:${remainder}`, WPM: wpm, accuracy };
+  return { finishTime: `${minutes}:${seconds}`, WPM: wpm, accuracy };
 }
 
 function calculateTime(endTime: number, startTime: string) {
