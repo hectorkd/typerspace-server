@@ -3,5 +3,4 @@ export default interface IgameState {
   correctCharacters: number;
   errorCharacters: number;
   WPM: number;
-  positionPlaceholder: number;
 }

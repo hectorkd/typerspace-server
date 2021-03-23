@@ -7,5 +7,11 @@ export default interface IgameState {
     };
     startTime: number;
     paragraph: string;
+    positions: {
+      [socketId: string]: {
+        currIndex: number;
+        currChar: string;
+      }
+    };
   };
 }
