@@ -16,7 +16,12 @@ const io = new Server(server, {
 
 io.on('connection', async (socket) => {
   const { roomId } = socket.handshake.query;
-  console.log('------------ New ws connection for room', roomId, ' from ', socket.id);
+  console.log(
+    '------------ New ws connection for room',
+    roomId,
+    ' from ',
+    socket.id,
+  );
   await helperFunctions.joinUser(`${roomId}`, socket.id, gameState);
   socket.join(`${roomId}`);
 
@@ -28,13 +33,12 @@ io.on('connection', async (socket) => {
       color: color,
     };
     gameState[`${roomId}`].users[socket.id] = updatedUser;
-    const usersArray = []
+    const usersArray = [];
     for (const user in gameState[`${roomId}`].users) {
       usersArray.push(gameState[`${roomId}`].users[user]);
     }
     io.to(`${roomId}`).emit('playerInfo', usersArray);
     io.to(`${roomId}`).emit('getParagraph', gameState[`${roomId}`].paragraph);
-    
   });
 
   socket.on('syncStart', () => {
@@ -44,18 +48,21 @@ io.on('connection', async (socket) => {
     io.to(`${roomId}`).emit('startTime', `${raceStartTime}`);
   });
 
-  socket.on('position', ({currIndex, currChar}) => {
-    const currPositions = gameState[`${roomId}`].positions
-    const newPositions = {...currPositions, [socket.id]: {currIndex, currChar}};
+  socket.on('position', ({ currIndex, currChar }) => {
+    const currPositions = gameState[`${roomId}`].positions;
+    const newPositions = {
+      ...currPositions,
+      [socket.id]: { currIndex, currChar },
+    };
     gameState[`${roomId}`].positions = newPositions;
     socket.to(`${roomId}`).emit('positions', gameState[`${roomId}`].positions);
-  })
+  });
 
-  socket.on('finishRace', async ({endTime, correctChar, errorChar}) => {
+  socket.on('finishRace', async ({ endTime, correctChar, errorChar }) => {
     console.log('player finished', endTime, correctChar, errorChar);
-  //  const results = helperFunction.calculateResults(userInfo)
-  //  gameState[roomId].users[socketId].gameData = results;
-  //  io.to(`${roomId}`).emit('results', `${gameState[roomId].users}`)
+    //  const results = helperFunction.calculateResults(userInfo)
+    //  gameState[roomId].users[socketId].gameData = results;
+    //  io.to(`${roomId}`).emit('results', `${gameState[roomId].users}`)
   });
 });
 
