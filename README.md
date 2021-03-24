@@ -1,1 +1,0 @@
-# typerspace-server

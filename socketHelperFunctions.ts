@@ -28,6 +28,7 @@ async function joinUser(
     isHost = true;
   }
   gameState[roomId].users[socketId] = {
+    userId: socketId,
     userName: 'Guest',
     color: '',
     isHost: isHost,

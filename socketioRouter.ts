@@ -38,27 +38,31 @@ io.on('connection', async (socket) => {
       usersArray.push(gameState[`${roomId}`].users[user]);
     }
     io.to(`${roomId}`).emit('playerInfo', usersArray);
-    io.to(`${roomId}`).emit('getParagraph', gameState[`${roomId}`].paragraph);
+    io.to(`${socket.id}`).emit(
+      'getParagraph',
+      gameState[`${roomId}`].paragraph,
+    ); // emit paragraph once only to user
   });
 
   socket.on('syncStart', () => {
+    io.to(`${roomId}`).emit('startRace');
     const timeNow = Date.now();
     const raceStartTime = timeNow + 5000;
     gameState[`${roomId}`].startTime = raceStartTime;
     io.to(`${roomId}`).emit('startTime', `${timeNow}`);
   });
 
-  socket.on('position', ({ currIndex, currChar }) => {
+  socket.on('position', ({ currIndex }) => {
     const currPositions = gameState[`${roomId}`].positions;
     const newPositions = {
       ...currPositions,
-      [socket.id]: { currIndex, currChar },
+      [socket.id]: currIndex,
     };
     gameState[`${roomId}`].positions = newPositions;
   });
 
   setInterval(() => {
-    socket.to(`${roomId}`).emit('positions', gameState[`${roomId}`].positions);
+    io.in(`${roomId}`).emit('positions', gameState[`${roomId}`].positions);
   }, 2000);
 
   socket.on(
