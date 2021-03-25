@@ -17,7 +17,7 @@ app.use(router);
 
 const PORT = process.env.PORT;
 
-app.listen(PORT, () =>
+server.listen(PORT, () =>
   console.log(`running at http://localhost:${PORT} 🚀🚀🚀`),
 );
 
