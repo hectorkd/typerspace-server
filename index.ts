@@ -8,8 +8,8 @@ dotenv.config();
 const app = express();
 
 app.use((req, res, next) => {
-  console.log(req.url);
-  console.log(req.method);
+  console.log('req.url', req.url);
+  console.log('req.method', req.method);
   next();
 });
 app.use(cors({ origin: '*' }));

@@ -10,8 +10,8 @@ const cors_1 = __importDefault(require("cors"));
 dotenv_1.default.config();
 const app = express_1.default();
 app.use((req, res, next) => {
-    console.log(req.url);
-    console.log(req.method);
+    console.log('req.url', req.url);
+    console.log('req.method', req.method);
     next();
 });
 app.use(cors_1.default({ origin: '*' }));
