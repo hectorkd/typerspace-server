@@ -54,16 +54,17 @@ io.on('connection', async (socket) => {
 
   socket.on('position', ({ currIndex }) => {
     const currPositions = gameState[`${roomId}`].positions;
+    const color = gameState[`${roomId}`].users[socket.id].color;
     const newPositions = {
       ...currPositions,
-      [socket.id]: currIndex,
+      [socket.id]: { currIndex, color },
     };
     gameState[`${roomId}`].positions = newPositions;
   });
 
   setInterval(() => {
     io.in(`${roomId}`).emit('positions', gameState[`${roomId}`].positions);
-  }, 2000);
+  }, 500);
 
   socket.on(
     'finishRace',
