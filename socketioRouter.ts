@@ -49,21 +49,22 @@ io.on('connection', async (socket) => {
     const timeNow = Date.now();
     const raceStartTime = timeNow + 5000;
     gameState[`${roomId}`].startTime = raceStartTime;
-    io.to(`${roomId}`).emit('startTime', `${timeNow}`);
+    io.to(`${roomId}`).emit('startTime', `${raceStartTime}`);
   });
 
   socket.on('position', ({ currIndex }) => {
     const currPositions = gameState[`${roomId}`].positions;
+    const color = gameState[`${roomId}`].users[socket.id].color;
     const newPositions = {
       ...currPositions,
-      [socket.id]: currIndex,
+      [socket.id]: { currIndex, color },
     };
     gameState[`${roomId}`].positions = newPositions;
   });
 
   setInterval(() => {
     io.in(`${roomId}`).emit('positions', gameState[`${roomId}`].positions);
-  }, 2000);
+  }, 500);
 
   socket.on(
     'finishRace',
