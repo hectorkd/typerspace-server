@@ -15,7 +15,7 @@ app.use((req, res, next) => {
 app.use(cors({ origin: '*' }));
 app.use(router);
 
-const PORT = process.env.SERVER_PORT;
+const PORT = process.env.PORT;
 
 server.listen(PORT, () =>
   console.log(`running at http://localhost:${PORT} 🚀🚀🚀`),
