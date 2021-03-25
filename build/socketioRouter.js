@@ -30,7 +30,11 @@ console.log('You made it here, woooooooo');
 io.on('connection', (socket) => __awaiter(void 0, void 0, void 0, function* () {
     const { roomId } = socket.handshake.query;
     console.log('------------ New ws connection for room', roomId, ' from ', socket.id);
-    yield socketHelperFunctions_1.default.joinUser(`${roomId}`, socket.id, gameState);
+    yield socketHelperFunctions_1.default
+        .joinUser(`${roomId}`, socket.id, gameState)
+        .catch((error) => {
+        console.error(error);
+    });
     socket.join(`${roomId}`);
     socket.on('userInfo', ({ userName, color }) => __awaiter(void 0, void 0, void 0, function* () {
         const curUser = gameState[`${roomId}`].users[socket.id];

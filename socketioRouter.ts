@@ -29,7 +29,11 @@ io.on('connection', async (socket) => {
     ' from ',
     socket.id,
   );
-  await helperFunctions.joinUser(`${roomId}`, socket.id, gameState);
+  await helperFunctions
+    .joinUser(`${roomId}`, socket.id, gameState)
+    .catch((error) => {
+      console.error(error);
+    });
   socket.join(`${roomId}`);
 
   socket.on('userInfo', async ({ userName, color }) => {
