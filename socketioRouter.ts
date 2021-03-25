@@ -49,7 +49,7 @@ io.on('connection', async (socket) => {
     const timeNow = Date.now();
     const raceStartTime = timeNow + 5000;
     gameState[`${roomId}`].startTime = raceStartTime;
-    io.to(`${roomId}`).emit('startTime', `${timeNow}`);
+    io.to(`${roomId}`).emit('startTime', `${raceStartTime}`);
   });
 
   socket.on('position', ({ currIndex }) => {
