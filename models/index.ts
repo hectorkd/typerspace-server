@@ -4,14 +4,20 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const sequelize = new Sequelize(
-  `${process.env.DB_NAME}`,
-  `${process.env.DB_USERNAME}`,
-  `${process.env.DB_PASSWORD}`,
+  'postgres://thseyuzazqdyyy:beabaadbed772f34190e9bf82ff6ff27b351484708979eeb90b30efb6ea43b34@ec2-107-22-245-82.compute-1.amazonaws.com:5432/ddq5r7di07mekt',
   {
-    host: 'localhost',
+    protocol: 'postgres',
     dialect: 'postgres',
+    dialectOptions: { ssl: { rejectUnauthorized: false } },
   },
 );
+// `${process.env.NAME}`,
+// `${process.env.USERNAME}`,
+// `${process.env.PASSWORD}`,
+// {
+//   host: `${process.env.HOST}`,
+//   dialect: 'postgres',
+// },
 
 (async () => {
   await sequelize.sync();

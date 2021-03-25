@@ -7,12 +7,19 @@ import { unregisterCustomQueryHandler } from 'puppeteer';
 
 const gameState: IgameState = {};
 
+console.log('befor the server is created');
+
 const server = createServer(app);
+console.log('inbetween server and io');
+
 const io = new Server(server, {
   cors: {
     origin: '*',
+    methods: ['GET', 'POST', 'PUT'],
   },
 });
+
+console.log('You made it here, woooooooo');
 
 io.on('connection', async (socket) => {
   const { roomId } = socket.handshake.query;
@@ -22,7 +29,11 @@ io.on('connection', async (socket) => {
     ' from ',
     socket.id,
   );
-  await helperFunctions.joinUser(`${roomId}`, socket.id, gameState);
+  await helperFunctions
+    .joinUser(`${roomId}`, socket.id, gameState)
+    .catch((error) => {
+      console.error(error);
+    });
   socket.join(`${roomId}`);
 
   socket.on('userInfo', async ({ userName, color }) => {
@@ -49,21 +60,22 @@ io.on('connection', async (socket) => {
     const timeNow = Date.now();
     const raceStartTime = timeNow + 5000;
     gameState[`${roomId}`].startTime = raceStartTime;
-    io.to(`${roomId}`).emit('startTime', `${timeNow}`);
+    io.to(`${roomId}`).emit('startTime', `${raceStartTime}`);
   });
 
   socket.on('position', ({ currIndex }) => {
     const currPositions = gameState[`${roomId}`].positions;
+    const color = gameState[`${roomId}`].users[socket.id].color;
     const newPositions = {
       ...currPositions,
-      [socket.id]: currIndex,
+      [socket.id]: { currIndex, color },
     };
     gameState[`${roomId}`].positions = newPositions;
   });
 
   setInterval(() => {
     io.in(`${roomId}`).emit('positions', gameState[`${roomId}`].positions);
-  }, 2000);
+  }, 500);
 
   socket.on(
     'finishRace',
