@@ -7,6 +7,11 @@ import server from './socketioRouter';
 dotenv.config();
 const app = express();
 
+app.use((req, res, next) => {
+  console.log(req.url);
+  console.log(req.method);
+  next();
+});
 app.use(cors({ origin: '*' }));
 app.use(router);
 
