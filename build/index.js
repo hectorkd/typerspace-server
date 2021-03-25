@@ -10,8 +10,13 @@ const cors_1 = __importDefault(require("cors"));
 const socketioRouter_1 = __importDefault(require("./socketioRouter"));
 dotenv_1.default.config();
 const app = express_1.default();
+app.use((req, res, next) => {
+    console.log(req.url);
+    console.log(req.method);
+    next();
+});
 app.use(cors_1.default({ origin: '*' }));
 app.use(router_1.default);
-const PORT = process.env.SERVER_PORT;
+const PORT = process.env.PORT;
 socketioRouter_1.default.listen(PORT, () => console.log(`running at http://localhost:${PORT} 🚀🚀🚀`));
 exports.default = app;

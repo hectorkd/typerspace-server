@@ -8,6 +8,7 @@ const paragraph_1 = __importDefault(require("./controllers/paragraph"));
 const router = express_1.default.Router();
 router.get('/get_paragraph', paragraph_1.default.getRandomParagraph);
 router.get('/', (req, res) => {
+    console.log('inside router');
     res.send('Hector the bad boi');
 });
 exports.default = router;
