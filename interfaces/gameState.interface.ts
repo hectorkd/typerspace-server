@@ -10,8 +10,8 @@ export default interface IgameState {
     positions: {
       [socketId: string]: {
         currIndex: number;
-        currChar: string;
-      }
+        color: string;
+      };
     };
   };
 }
