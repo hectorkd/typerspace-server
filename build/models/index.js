@@ -15,10 +15,18 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
-const sequelize = new sequelize_1.Sequelize(`${process.env.NAME}`, `${process.env.USERNAME}`, `${process.env.PASSWORD}`, {
-    host: `${process.env.HOST}`,
+const sequelize = new sequelize_1.Sequelize('postgres://thseyuzazqdyyy:beabaadbed772f34190e9bf82ff6ff27b351484708979eeb90b30efb6ea43b34@ec2-107-22-245-82.compute-1.amazonaws.com:5432/ddq5r7di07mekt', {
+    protocol: 'postgres',
     dialect: 'postgres',
+    dialectOptions: { ssl: { rejectUnauthorized: false } },
 });
+// `${process.env.NAME}`,
+// `${process.env.USERNAME}`,
+// `${process.env.PASSWORD}`,
+// {
+//   host: `${process.env.HOST}`,
+//   dialect: 'postgres',
+// },
 (() => __awaiter(void 0, void 0, void 0, function* () {
     yield sequelize.sync();
     console.log('connected to db');
