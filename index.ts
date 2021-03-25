@@ -7,7 +7,7 @@ import server from './socketioRouter';
 dotenv.config();
 const app = express();
 
-app.use(cors());
+app.use(cors({ origin: '*' }));
 app.use(router);
 
 const PORT = process.env.SERVER_PORT;
