@@ -29,15 +29,6 @@ io.on('connection', async (socket) => {
     ' from ',
     socket.id,
   );
-<<<<<<< HEAD
-
-=======
-  await helperFunctions
-    .joinUser(`${roomId}`, socket.id, gameState)
-    .catch((error) => {
-      console.error(error);
-    });
->>>>>>> 038c374ec0b92d2f839c48a5adbe0a18fab561bd
   socket.join(`${roomId}`);
 
   await helperFunctions
