@@ -7,12 +7,19 @@ import { unregisterCustomQueryHandler } from 'puppeteer';
 
 const gameState: IgameState = {};
 
+console.log('befor the server is created');
+
 const server = createServer(app);
+console.log('inbetween server and io');
+
 const io = new Server(server, {
   cors: {
     origin: '*',
+    methods: ['GET', 'POST', 'PUT'],
   },
 });
+
+console.log('You made it here, woooooooo');
 
 io.on('connection', async (socket) => {
   const { roomId } = socket.handshake.query;
@@ -22,7 +29,15 @@ io.on('connection', async (socket) => {
     ' from ',
     socket.id,
   );
+<<<<<<< HEAD
 
+=======
+  await helperFunctions
+    .joinUser(`${roomId}`, socket.id, gameState)
+    .catch((error) => {
+      console.error(error);
+    });
+>>>>>>> 038c374ec0b92d2f839c48a5adbe0a18fab561bd
   socket.join(`${roomId}`);
 
   await helperFunctions
