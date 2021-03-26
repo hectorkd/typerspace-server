@@ -21,7 +21,7 @@ async function joinUser(
   socketId: string,
   gameState: any,
 ): Promise<void> {
-  let isHost: boolean = false;
+  let isHost = false;
   if (!gameState[roomId]) {
     const paragraph: string = await getRandomParagraph();
     gameState[roomId] = { users: {}, paragraph: paragraph };
