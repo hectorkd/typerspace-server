@@ -4,6 +4,7 @@ const router = express.Router();
 
 router.get('/get_paragraph', paragraphController.getRandomParagraph);
 router.get('/', (req, res) => {
+  console.log('inside router');
   res.send('Hector the bad boi');
 });
 

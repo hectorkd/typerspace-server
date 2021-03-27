@@ -1,18 +1,25 @@
 import app from './index';
 import { createServer } from 'http';
-import { Server, Socket } from 'socket.io';
+import { Server } from 'socket.io';
 import helperFunctions from './socketHelperFunctions';
 import IgameState from './interfaces/gameState.interface';
-import { unregisterCustomQueryHandler } from 'puppeteer';
+import Iuser from './interfaces/user.interface';
 
 const gameState: IgameState = {};
 
+console.log('befor the server is created');
+
 const server = createServer(app);
+console.log('inbetween server and io');
+
 const io = new Server(server, {
   cors: {
     origin: '*',
+    methods: ['GET', 'POST', 'PUT'],
   },
 });
+
+console.log('You made it here, woooooooo');
 
 io.on('connection', async (socket) => {
   const { roomId } = socket.handshake.query;
@@ -22,10 +29,19 @@ io.on('connection', async (socket) => {
     ' from ',
     socket.id,
   );
-  await helperFunctions.joinUser(`${roomId}`, socket.id, gameState);
   socket.join(`${roomId}`);
 
-  socket.on('userInfo', async ({ userName, color }) => {
+  await helperFunctions
+    .joinUser(`${roomId}`, socket.id, gameState)
+    .then(() => {
+      const usersArray = helperFunctions.getPlayers(gameState, roomId);
+      io.to(`${roomId}`).emit('playerInfo', usersArray);
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+
+  socket.on('userInfo', ({ userName, color }) => {
     const curUser = gameState[`${roomId}`].users[socket.id];
     const updatedUser = {
       ...curUser,
@@ -33,10 +49,7 @@ io.on('connection', async (socket) => {
       color: color,
     };
     gameState[`${roomId}`].users[socket.id] = updatedUser;
-    const usersArray = [];
-    for (const user in gameState[`${roomId}`].users) {
-      usersArray.push(gameState[`${roomId}`].users[user]);
-    }
+    const usersArray = helperFunctions.getPlayers(gameState, roomId);
     io.to(`${roomId}`).emit('playerInfo', usersArray);
     io.to(`${socket.id}`).emit(
       'getParagraph',
@@ -82,13 +95,49 @@ io.on('connection', async (socket) => {
         WPM,
         accuracy,
       };
-      const usersArray = [];
-      for (const user in gameState[`${roomId}`].users) {
-        usersArray.push(gameState[`${roomId}`].users[user]);
-      }
+      const usersArray = helperFunctions.getPlayers(gameState, roomId);
       io.to(`${roomId}`).emit('results', usersArray);
     },
   );
+
+  socket.on('getParagraph', async () => {
+    const newParagraph = await helperFunctions.getRandomParagraph();
+    const newGameState = { ...gameState[`${roomId}`], paragraph: newParagraph };
+    gameState[`${roomId}`] = newGameState;
+    io.to(`${roomId}`).emit('getParagraph', gameState[`${roomId}`].paragraph);
+  });
+
+  socket.on('playAgain', () => {
+    const usersInRoom = gameState[`${roomId}`].users;
+    for (const user in usersInRoom) {
+      const newUserInfo: Iuser = {
+        ...usersInRoom[user],
+        gameData: {
+          finishTime: '',
+          WPM: undefined,
+          accuracy: undefined,
+        },
+      };
+      usersInRoom[user] = newUserInfo;
+    }
+    const usersArray = helperFunctions.getPlayers(gameState, roomId);
+    io.to(`${roomId}`).emit('playerInfo', usersArray);
+    socket.to(`${roomId}`).emit('navigateToLobby');
+  });
+
+  socket.on('disconnect', () => {
+    // if (gameState[`${roomId}`].users[socket.id].isHost) {
+    //   io.to(`${roomId}`).emit('hostDisconnect');
+    //   socket.leave(`${roomId}`);
+    //   delete gameState[`${roomId}`];
+    // } else {
+    delete gameState[`${roomId}`].users[socket.id];
+    socket.leave(`${roomId}`);
+    io.to(`${roomId}`).emit('playerDisconnect');
+    const usersArray = helperFunctions.getPlayers(gameState, roomId);
+    io.to(`${roomId}`).emit('playerInfo', usersArray);
+    // }
+  });
 });
 
 export default server;
