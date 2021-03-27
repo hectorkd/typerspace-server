@@ -52,16 +52,17 @@ io.on('connection', (socket) => __awaiter(void 0, void 0, void 0, function* () {
         const timeNow = Date.now();
         const raceStartTime = timeNow + 5000;
         gameState[`${roomId}`].startTime = raceStartTime;
-        io.to(`${roomId}`).emit('startTime', `${timeNow}`);
+        io.to(`${roomId}`).emit('startTime', `${raceStartTime}`);
     });
     socket.on('position', ({ currIndex }) => {
         const currPositions = gameState[`${roomId}`].positions;
-        const newPositions = Object.assign(Object.assign({}, currPositions), { [socket.id]: currIndex });
+        const color = gameState[`${roomId}`].users[socket.id].color;
+        const newPositions = Object.assign(Object.assign({}, currPositions), { [socket.id]: { currIndex, color } });
         gameState[`${roomId}`].positions = newPositions;
     });
     setInterval(() => {
         io.in(`${roomId}`).emit('positions', gameState[`${roomId}`].positions);
-    }, 2000);
+    }, 500);
     socket.on('finishRace', ({ endTime, startTime, allKeyPresses, length }) => __awaiter(void 0, void 0, void 0, function* () {
         console.log({ endTime, startTime, allKeyPresses, length });
         // console.log('player finished', endTime, correctChar, errorChar, charLength, allKeyPresses);
