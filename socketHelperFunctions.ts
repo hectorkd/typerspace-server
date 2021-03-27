@@ -2,6 +2,7 @@ import { unregisterCustomQueryHandler } from 'puppeteer';
 import { Socket } from 'socket.io';
 import Paragraph from './schemas/paragraph';
 import IWpmCalculation from './interfaces/calcutaltion.interface';
+import gameState from './interfaces/gameState.interface';
 import Iuser from './interfaces/user.interface';
 import { time } from 'node:console';
 
@@ -21,7 +22,7 @@ async function joinUser(
   socketId: string,
   gameState: any,
 ): Promise<void> {
-  let isHost: boolean = false;
+  let isHost = false;
   if (!gameState[roomId]) {
     const paragraph: string = await getRandomParagraph();
     gameState[roomId] = { users: {}, paragraph: paragraph };
@@ -71,8 +72,20 @@ function calculateAccuracy(allKeyPresses: number, charLength: number): number {
   return accuracy;
 }
 
+function getPlayers(
+  gameState: gameState,
+  roomId: string | string[] | undefined,
+): Iuser[] {
+  const usersArray = [];
+  for (const user in gameState[`${roomId}`].users) {
+    usersArray.push(gameState[`${roomId}`].users[user]);
+  }
+  return usersArray;
+}
+
 export default {
   getRandomParagraph,
   joinUser,
   calculateResults,
+  getPlayers,
 };
