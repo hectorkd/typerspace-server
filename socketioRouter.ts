@@ -1,9 +1,9 @@
 import app from './index';
 import { createServer } from 'http';
-import { Server, Socket } from 'socket.io';
+import { Server } from 'socket.io';
 import helperFunctions from './socketHelperFunctions';
 import IgameState from './interfaces/gameState.interface';
-import { unregisterCustomQueryHandler } from 'puppeteer';
+import Iuser from './interfaces/user.interface';
 
 const gameState: IgameState = {};
 
@@ -95,25 +95,51 @@ io.on('connection', async (socket) => {
         WPM,
         accuracy,
       };
-      const usersArray = [];
-      for (const user in gameState[`${roomId}`].users) {
-        usersArray.push(gameState[`${roomId}`].users[user]);
-      }
+      const usersArray = helperFunctions.getPlayers(gameState, roomId);
       io.to(`${roomId}`).emit('results', usersArray);
     },
   );
-  socket.on('disconnect', () => {
-    if (gameState[`${roomId}`].users[socket.id].isHost) {
-      io.to(`${roomId}`).emit('hostDisconnect');
-      socket.leave(`${roomId}`);
-      delete gameState[`${roomId}`];
-    } else {
-      delete gameState[`${roomId}`].users[socket.id];
-      socket.leave(`${roomId}`);
-      io.to(`${roomId}`).emit('playerDisconnect');
-      const usersArray = helperFunctions.getPlayers(gameState, roomId);
-      io.to(`${roomId}`).emit('playerInfo', usersArray);
+
+  socket.on('getParagraph', async () => {
+    const newParagraph = await helperFunctions.getRandomParagraph();
+    const newGameState = { ...gameState[`${roomId}`], paragraph: newParagraph };
+    gameState[`${roomId}`] = newGameState;
+    io.to(`${roomId}`).emit('getParagraph', gameState[`${roomId}`].paragraph);
+  });
+
+  socket.on('playAgain', () => {
+    const usersInRoom = gameState[`${roomId}`].users;
+    for (const user in usersInRoom) {
+      const newUserInfo: Iuser = {
+        ...usersInRoom[user],
+        gameData: {
+          finishTime: '',
+          WPM: undefined,
+          accuracy: undefined,
+        },
+      };
+      usersInRoom[user] = newUserInfo;
     }
+    const usersArray = helperFunctions.getPlayers(gameState, roomId);
+    io.to(`${roomId}`).emit('playerInfo', usersArray);
+  });
+
+  socket.on('navigateLobby', () => {
+    socket.to(`${roomId}`).emit('navigateLobby');
+  });
+
+  socket.on('disconnect', () => {
+    // if (gameState[`${roomId}`].users[socket.id].isHost) {
+    //   io.to(`${roomId}`).emit('hostDisconnect');
+    //   socket.leave(`${roomId}`);
+    //   delete gameState[`${roomId}`];
+    // } else {
+    delete gameState[`${roomId}`].users[socket.id];
+    socket.leave(`${roomId}`);
+    io.to(`${roomId}`).emit('playerDisconnect');
+    const usersArray = helperFunctions.getPlayers(gameState, roomId);
+    io.to(`${roomId}`).emit('playerInfo', usersArray);
+    // }
   });
 });
 
