@@ -68,8 +68,16 @@ function calculateAccuracy(allKeyPresses, charLength) {
     const accuracy = Math.round((charLength / allKeyPresses) * 100);
     return accuracy;
 }
+function getPlayers(gameState, roomId) {
+    const usersArray = [];
+    for (const user in gameState[`${roomId}`].users) {
+        usersArray.push(gameState[`${roomId}`].users[user]);
+    }
+    return usersArray;
+}
 exports.default = {
     getRandomParagraph,
     joinUser,
     calculateResults,
+    getPlayers,
 };
