@@ -122,10 +122,7 @@ io.on('connection', async (socket) => {
     }
     const usersArray = helperFunctions.getPlayers(gameState, roomId);
     io.to(`${roomId}`).emit('playerInfo', usersArray);
-  });
-
-  socket.on('navigateLobby', () => {
-    socket.to(`${roomId}`).emit('navigateLobby');
+    socket.to(`${roomId}`).emit('navigateToLobby');
   });
 
   socket.on('disconnect', () => {
