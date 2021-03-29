@@ -2,6 +2,7 @@ import app from './index';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import helperFunctions from './socketHelperFunctions';
+import powerUps from './powerUps';
 import IgameState from './interfaces/gameState.interface';
 import Iuser from './interfaces/user.interface';
 
@@ -62,6 +63,26 @@ io.on('connection', async (socket) => {
       gameState[`${roomId}`].rounds, //test rounds assignment
       gameState[`${roomId}`].currRound,
     ); // emit paragraph once only to user
+  });
+
+  socket.on('applyPower', ({ power, userName }) => {
+    const allUsers = Object.values(gameState[`${roomId}`].users);
+    const loser = allUsers.filter((user) => user.userName === userName)[0];
+    let updatedParagraph = '';
+    if (power === 'scramble') {
+      updatedParagraph = powerUps.scrambleWord(loser.userParagraph);
+    } else if (power === 'longWord') {
+      updatedParagraph = powerUps.insertLongWord(loser.userParagraph);
+    } else if (power === 'symbols') {
+      updatedParagraph = powerUps.insertSymbols(loser.userParagraph);
+    }
+    const updatedUser = {
+      ...loser,
+      userParagraph: updatedParagraph,
+    };
+    gameState[`${roomId}`].users[loser.userId] = updatedUser;
+    const usersArray = helperFunctions.getPlayers(gameState, roomId);
+    io.to(`${roomId}`).emit('playerInfo', usersArray);
   });
 
   socket.on('syncStart', () => {
