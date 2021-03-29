@@ -6,16 +6,20 @@ import IWpmCalculation from './interfaces/calcutaltion.interface';
 import gameState from './interfaces/gameState.interface';
 import Iuser from './interfaces/user.interface';
 // import { time } from 'node:console';
+import { time } from 'node:console';
+import sequelize from './models';
+import { Op } from 'sequelize';
 
-async function getRandomParagraph(): Promise<string> {
-  const randomNumber: number = Math.floor(Math.random() * 7191); //TODO: romove hard coded number
-  const paragraph: any = await Paragraph.findOne({
-    //TODO: fix any
-    where: { id: randomNumber },
-  }).then((data) => {
-    return data?.get('text');
+async function getRandomParagraph(): Promise<string | undefined> {
+  const paragraph = await Paragraph.findOne({
+    order: sequelize.random(),
+    where: {
+      characterLengthNumeric: {
+        [Op.lt]: 400,
+      },
+    },
   });
-  return paragraph;
+  return paragraph?.text;
 }
 
 async function joinUser(
@@ -25,7 +29,7 @@ async function joinUser(
 ): Promise<void> {
   let isHost = false;
   if (!gameState[roomId]) {
-    const paragraph: string = await getRandomParagraph();
+    const paragraph: string | undefined = await getRandomParagraph();
     gameState[roomId] = { users: {}, paragraph: paragraph };
     isHost = true;
   }

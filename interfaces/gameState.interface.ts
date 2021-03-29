@@ -8,7 +8,7 @@ export default interface IgameState {
     rounds: number;
     currRound: number;
     startTime: number;
-    paragraph: string;
+    paragraph: string | undefined;
     positions: {
       [socketId: string]: {
         currIndex: number;
