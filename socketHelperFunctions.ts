@@ -1,10 +1,10 @@
-import { unregisterCustomQueryHandler } from 'puppeteer';
-import { Socket } from 'socket.io';
+// import { unregisterCustomQueryHandler } from 'puppeteer';
+// import { Socket } from 'socket.io';
 import Paragraph from './schemas/paragraph';
 import IWpmCalculation from './interfaces/calcutaltion.interface';
 import gameState from './interfaces/gameState.interface';
 import Iuser from './interfaces/user.interface';
-import { time } from 'node:console';
+// import { time } from 'node:console';
 
 async function getRandomParagraph(): Promise<string> {
   const randomNumber: number = Math.floor(Math.random() * 7191); //TODO: romove hard coded number
@@ -35,6 +35,17 @@ async function joinUser(
     isHost: isHost,
     isReady: false,
     gameData: {},
+    userParagraph: gameState[roomId].paragraph,
+    availablePUs: {
+      scrambleWord: false,
+      insertLongWord: false,
+      insertSymbols: false,
+    },
+    appliedPUs: {
+      scrambleWord: false,
+      insertLongWord: false,
+      insertSymbols: false,
+    },
   };
   // const newGameState: Iuser = gameState[roomId].users[socketId]
 }

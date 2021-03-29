@@ -7,10 +7,10 @@ import Iuser from './interfaces/user.interface';
 
 const gameState: IgameState = {};
 
-console.log('befor the server is created');
+// console.log('befor the server is created');
 
 const server = createServer(app);
-console.log('inbetween server and io');
+// console.log('inbetween server and io');
 
 const io = new Server(server, {
   cors: {
@@ -19,7 +19,7 @@ const io = new Server(server, {
   },
 });
 
-console.log('You made it here, woooooooo');
+// console.log('You made it here, woooooooo');
 
 io.on('connection', async (socket) => {
   const { roomId } = socket.handshake.query;
