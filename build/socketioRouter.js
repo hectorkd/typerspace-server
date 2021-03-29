@@ -30,23 +30,24 @@ console.log('You made it here, woooooooo');
 io.on('connection', (socket) => __awaiter(void 0, void 0, void 0, function* () {
     const { roomId } = socket.handshake.query;
     console.log('------------ New ws connection for room', roomId, ' from ', socket.id);
+    socket.join(`${roomId}`);
     yield socketHelperFunctions_1.default
         .joinUser(`${roomId}`, socket.id, gameState)
-        .catch((error) => {
-        console.error(error);
+        .then(() => {
+        const usersArray = socketHelperFunctions_1.default.getPlayers(gameState, roomId);
+        io.to(`${roomId}`).emit('playerInfo', usersArray);
+    })
+        .catch((err) => {
+        console.error(err);
     });
-    socket.join(`${roomId}`);
-    socket.on('userInfo', ({ userName, color }) => __awaiter(void 0, void 0, void 0, function* () {
+    socket.on('userInfo', ({ userName, color }) => {
         const curUser = gameState[`${roomId}`].users[socket.id];
         const updatedUser = Object.assign(Object.assign({}, curUser), { userName: userName, color: color });
         gameState[`${roomId}`].users[socket.id] = updatedUser;
-        const usersArray = [];
-        for (const user in gameState[`${roomId}`].users) {
-            usersArray.push(gameState[`${roomId}`].users[user]);
-        }
+        const usersArray = socketHelperFunctions_1.default.getPlayers(gameState, roomId);
         io.to(`${roomId}`).emit('playerInfo', usersArray);
         io.to(`${socket.id}`).emit('getParagraph', gameState[`${roomId}`].paragraph); // emit paragraph once only to user
-    }));
+    });
     socket.on('syncStart', () => {
         io.to(`${roomId}`).emit('startRace');
         const timeNow = Date.now();
@@ -72,11 +73,41 @@ io.on('connection', (socket) => __awaiter(void 0, void 0, void 0, function* () {
             WPM,
             accuracy,
         };
-        const usersArray = [];
-        for (const user in gameState[`${roomId}`].users) {
-            usersArray.push(gameState[`${roomId}`].users[user]);
-        }
+        const usersArray = socketHelperFunctions_1.default.getPlayers(gameState, roomId);
         io.to(`${roomId}`).emit('results', usersArray);
     }));
+    socket.on('getParagraph', () => __awaiter(void 0, void 0, void 0, function* () {
+        const newParagraph = yield socketHelperFunctions_1.default.getRandomParagraph();
+        const newGameState = Object.assign(Object.assign({}, gameState[`${roomId}`]), { paragraph: newParagraph });
+        gameState[`${roomId}`] = newGameState;
+        io.to(`${roomId}`).emit('getParagraph', gameState[`${roomId}`].paragraph);
+    }));
+    socket.on('playAgain', () => {
+        const usersInRoom = gameState[`${roomId}`].users;
+        for (const user in usersInRoom) {
+            const newUserInfo = Object.assign(Object.assign({}, usersInRoom[user]), { gameData: {
+                    finishTime: '',
+                    WPM: undefined,
+                    accuracy: undefined,
+                } });
+            usersInRoom[user] = newUserInfo;
+        }
+        const usersArray = socketHelperFunctions_1.default.getPlayers(gameState, roomId);
+        io.to(`${roomId}`).emit('playerInfo', usersArray);
+        socket.to(`${roomId}`).emit('navigateToLobby');
+    });
+    socket.on('disconnect', () => {
+        // if (gameState[`${roomId}`].users[socket.id].isHost) {
+        //   io.to(`${roomId}`).emit('hostDisconnect');
+        //   socket.leave(`${roomId}`);
+        //   delete gameState[`${roomId}`];
+        // } else {
+        delete gameState[`${roomId}`].users[socket.id];
+        socket.leave(`${roomId}`);
+        io.to(`${roomId}`).emit('playerDisconnect');
+        const usersArray = socketHelperFunctions_1.default.getPlayers(gameState, roomId);
+        io.to(`${roomId}`).emit('playerInfo', usersArray);
+        // }
+    });
 }));
 exports.default = server;

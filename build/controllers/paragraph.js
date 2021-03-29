@@ -13,21 +13,23 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const paragraph_1 = __importDefault(require("../schemas/paragraph"));
+const sequelize_1 = require("sequelize");
+const models_1 = __importDefault(require("../models"));
+// const Op = Sequelize.Op;
 function getRandomParagraph(_, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const randomNumber = Math.floor(Math.random() * 7191); //TODO: romove hard coded number
             const paragraph = yield paragraph_1.default.findOne({
-                where: { id: randomNumber },
-            }).then((data) => {
-                return {
-                    text: data === null || data === void 0 ? void 0 : data.get('text'),
-                    difficultyRating: data === null || data === void 0 ? void 0 : data.get('difficultyRating'),
-                    characterLength: data === null || data === void 0 ? void 0 : data.get('characterLength'),
-                };
+                order: models_1.default.random(),
+                where: {
+                    characterLengthNumeric: {
+                        [sequelize_1.Op.lt]: 400,
+                    },
+                },
             });
+            // console.log(`paragraph`, paragraph?.toJSON());
             res.status(200);
-            res.send(`${paragraph}`);
+            res.send(`${paragraph === null || paragraph === void 0 ? void 0 : paragraph.characterLength}`);
         }
         catch (err) {
             console.error(err);

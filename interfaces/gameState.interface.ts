@@ -6,7 +6,7 @@ export default interface IgameState {
       [socketId: string]: Iuser;
     };
     startTime: number;
-    paragraph: string;
+    paragraph: string | undefined;
     positions: {
       [socketId: string]: {
         currIndex: number;
