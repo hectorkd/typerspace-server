@@ -66,21 +66,40 @@ io.on('connection', async (socket) => {
   });
 
   socket.on('applyPower', ({ power, userName }) => {
-    const allUsers = Object.values(gameState[`${roomId}`].users);
-    const loser = allUsers.filter((user) => user.userName === userName)[0];
+    //apply power to chosen user and update available power ups for current user
+    const curUser = gameState[`${roomId}`].users[socket.id];
+    const loser = Object.values(gameState[`${roomId}`].users).filter(
+      (user) => user.userName === userName,
+    )[0];
     let updatedParagraph = '';
+    // const appliedPUs = loser.appliedPUs;
+    const availablePUs = curUser.availablePUs;
     if (power === 'scramble') {
       updatedParagraph = powerUps.scrambleWord(loser.userParagraph);
+      // appliedPUs.scrambleWord = false;
+      availablePUs.scrambleWord = false;
     } else if (power === 'longWord') {
       updatedParagraph = powerUps.insertLongWord(loser.userParagraph);
+      // appliedPUs.insertLongWord = false;
+      availablePUs.insertLongWord = false;
     } else if (power === 'symbols') {
       updatedParagraph = powerUps.insertSymbols(loser.userParagraph);
+      // appliedPUs.insertSymbols = false;
+      availablePUs.insertSymbols = false;
     }
-    const updatedUser = {
+    const updatedLoser = {
       ...loser,
       userParagraph: updatedParagraph,
+      // appliedPUs: appliedPUs,
     };
-    gameState[`${roomId}`].users[loser.userId] = updatedUser;
+    const isReady = helperFunctions.checkIfReady(curUser);
+    const updatedcurUser = {
+      ...curUser,
+      availableUPs: availablePUs,
+      isReady: isReady,
+    };
+    gameState[`${roomId}`].users[loser.userId] = updatedLoser;
+    gameState[`${roomId}`].users[socket.id] = updatedcurUser;
     const usersArray = helperFunctions.getPlayers(gameState, roomId);
     io.to(`${roomId}`).emit('playerInfo', usersArray);
   });
