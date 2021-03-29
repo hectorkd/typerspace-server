@@ -13,16 +13,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const paragraph_1 = __importDefault(require("./schemas/paragraph"));
+const models_1 = __importDefault(require("./models"));
+const sequelize_1 = require("sequelize");
 function getRandomParagraph() {
     return __awaiter(this, void 0, void 0, function* () {
-        const randomNumber = Math.floor(Math.random() * 7191); //TODO: romove hard coded number
         const paragraph = yield paragraph_1.default.findOne({
-            //TODO: fix any
-            where: { id: randomNumber },
-        }).then((data) => {
-            return data === null || data === void 0 ? void 0 : data.get('text');
+            order: models_1.default.random(),
+            where: {
+                characterLengthNumeric: {
+                    [sequelize_1.Op.lt]: 400,
+                },
+            },
         });
-        return paragraph;
+        return paragraph === null || paragraph === void 0 ? void 0 : paragraph.text;
     });
 }
 function joinUser(roomId, socketId, gameState) {
