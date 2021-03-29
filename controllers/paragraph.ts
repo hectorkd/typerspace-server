@@ -1,20 +1,22 @@
 import { Request, Response } from 'express';
 import Paragraph from '../schemas/paragraph';
+import Sequelize, { Op } from 'sequelize';
+import sequelize from '../models';
+// const Op = Sequelize.Op;
 
 async function getRandomParagraph(_: Request, res: Response): Promise<void> {
   try {
-    const randomNumber = Math.floor(Math.random() * 7191); //TODO: romove hard coded number
     const paragraph = await Paragraph.findOne({
-      where: { id: randomNumber },
-    }).then((data) => {
-      return {
-        text: data?.get('text'),
-        difficultyRating: data?.get('difficultyRating'),
-        characterLength: data?.get('characterLength'),
-      };
+      order: sequelize.random(),
+      where: {
+        characterLengthNumeric: {
+          [Op.lt]: 400,
+        },
+      },
     });
+    // console.log(`paragraph`, paragraph?.toJSON());
     res.status(200);
-    res.send(`${paragraph}`);
+    res.send(`${paragraph?.characterLength}`);
   } catch (err) {
     console.error(err);
     res.status(500);
