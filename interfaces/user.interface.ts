@@ -11,4 +11,7 @@ export default interface Iuser {
   appliedPUs: IpowerUps;
   availablePUs: IpowerUps;
   isReady: boolean;
+  rank: number;
+  WPMHistory: Array<number>;
+  WPMAverage: number;
 }
