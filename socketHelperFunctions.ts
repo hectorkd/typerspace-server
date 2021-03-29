@@ -1,9 +1,11 @@
-import { unregisterCustomQueryHandler } from 'puppeteer';
-import { Socket } from 'socket.io';
+// import { unregisterCustomQueryHandler } from 'puppeteer';
+// import { Socket } from 'socket.io';
 import Paragraph from './schemas/paragraph';
+import powerUps from './powerUps';
 import IWpmCalculation from './interfaces/calcutaltion.interface';
 import gameState from './interfaces/gameState.interface';
 import Iuser from './interfaces/user.interface';
+// import { time } from 'node:console';
 import { time } from 'node:console';
 import sequelize from './models';
 import { Op } from 'sequelize';
@@ -38,6 +40,17 @@ async function joinUser(
     isHost: isHost,
     isReady: false,
     gameData: {},
+    userParagraph: gameState[roomId].paragraph,
+    availablePUs: {
+      scrambleWord: false, //TODO: change back to false!
+      insertLongWord: false,
+      insertSymbols: false,
+    },
+    appliedPUs: {
+      scrambleWord: false,
+      insertLongWord: false,
+      insertSymbols: false,
+    },
   };
   // const newGameState: Iuser = gameState[roomId].users[socketId]
 }
@@ -86,9 +99,20 @@ function getPlayers(
   return usersArray;
 }
 
+function checkIfReady(player: Iuser): boolean {
+  let isReady;
+  if (Object.values(player.availablePUs).some((el) => el)) {
+    isReady = false;
+  } else {
+    isReady = true;
+  }
+  return isReady;
+}
+
 export default {
   getRandomParagraph,
   joinUser,
   calculateResults,
   getPlayers,
+  checkIfReady,
 };
