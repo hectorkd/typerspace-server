@@ -34,11 +34,13 @@ const scraper = async (url: string) => {
   const scrapeResult = await scraper(url);
 
   scrapeResult.forEach((el: Array<string>) => {
-    Paragraph.create({
-      text: el[0],
-      difficultyRating: el[2],
-      characterLength: el[1],
-    });
+    if (el[0].length < 400) {
+      Paragraph.create({
+        text: el[0],
+        difficultyRating: el[2],
+        characterLength: el[1],
+      });
+    }
   });
   console.log('Scraping has finished! Yippee!');
 })();
