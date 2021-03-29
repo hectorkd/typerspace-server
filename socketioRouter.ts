@@ -66,31 +66,32 @@ io.on('connection', async (socket) => {
   });
 
   socket.on('applyPower', ({ power, userName }) => {
+    //TODO: refactor! keep smth in helper function
     //apply power to chosen user and update available power ups for current user
     const curUser = gameState[`${roomId}`].users[socket.id];
     const loser = Object.values(gameState[`${roomId}`].users).filter(
       (user) => user.userName === userName,
     )[0];
     let updatedParagraph = '';
-    // const appliedPUs = loser.appliedPUs;
+    const appliedPUs = loser.appliedPUs;
     const availablePUs = curUser.availablePUs;
     if (power === 'scramble') {
       updatedParagraph = powerUps.scrambleWord(loser.userParagraph);
-      // appliedPUs.scrambleWord = false;
+      appliedPUs.scrambleWord = true;
       availablePUs.scrambleWord = false;
     } else if (power === 'longWord') {
       updatedParagraph = powerUps.insertLongWord(loser.userParagraph);
-      // appliedPUs.insertLongWord = false;
+      appliedPUs.insertLongWord = true;
       availablePUs.insertLongWord = false;
     } else if (power === 'symbols') {
       updatedParagraph = powerUps.insertSymbols(loser.userParagraph);
-      // appliedPUs.insertSymbols = false;
+      appliedPUs.insertSymbols = true;
       availablePUs.insertSymbols = false;
     }
     const updatedLoser = {
       ...loser,
       userParagraph: updatedParagraph,
-      // appliedPUs: appliedPUs,
+      appliedPUs: appliedPUs,
     };
     const isReady = helperFunctions.checkIfReady(curUser);
     const updatedcurUser = {
