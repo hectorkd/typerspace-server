@@ -41,7 +41,7 @@ io.on('connection', async (socket) => {
       console.error(err);
     });
 
-  socket.on('userInfo', ({ userName, color }) => {
+  socket.on('userInfo', ({ userName, color, rounds }) => {
     const curUser = gameState[`${roomId}`].users[socket.id];
     const updatedUser = {
       ...curUser,
@@ -49,11 +49,17 @@ io.on('connection', async (socket) => {
       color: color,
     };
     gameState[`${roomId}`].users[socket.id] = updatedUser;
+    if (curUser.isHost) {
+      gameState[`${roomId}`].rounds = parseInt(rounds);
+      gameState[`${roomId}`].currRound = 1;
+    }
     const usersArray = helperFunctions.getPlayers(gameState, roomId);
     io.to(`${roomId}`).emit('playerInfo', usersArray);
     io.to(`${socket.id}`).emit(
-      'getParagraph',
+      'getGameState',
       gameState[`${roomId}`].paragraph,
+      gameState[`${roomId}`].rounds, //test rounds assignment
+      gameState[`${roomId}`].currRound,
     ); // emit paragraph once only to user
   });
 
@@ -110,6 +116,8 @@ io.on('connection', async (socket) => {
   socket.on('playAgain', () => {
     const usersInRoom = gameState[`${roomId}`].users;
     for (const user in usersInRoom) {
+      //TODO: calculate rank before cleaning gameData
+      //TODO: update currRound!
       const newUserInfo: Iuser = {
         ...usersInRoom[user],
         gameData: {
