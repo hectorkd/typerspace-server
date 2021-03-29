@@ -11,5 +11,6 @@ Paragraph.init({
     text: sequelize_1.DataTypes.STRING(1000),
     difficultyRating: sequelize_1.DataTypes.STRING,
     characterLength: sequelize_1.DataTypes.STRING,
+    characterLengthNumeric: sequelize_1.DataTypes.INTEGER,
 }, { sequelize: index_1.default, modelName: 'paragraph' });
 exports.default = Paragraph;

@@ -1,5 +1,5 @@
 export default interface IParagragh {
-  paragraph: string;
+  paragraph: string | undefined;
   characterLength: string;
   difficultyRating: number;
 }

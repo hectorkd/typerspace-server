@@ -5,8 +5,10 @@ export default interface IgameState {
     users: {
       [socketId: string]: Iuser;
     };
+    rounds: number;
+    currRound: number;
     startTime: number;
-    paragraph: string;
+    paragraph: string | undefined;
     positions: {
       [socketId: string]: {
         currIndex: number;
