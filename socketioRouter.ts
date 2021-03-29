@@ -43,10 +43,12 @@ io.on('connection', async (socket) => {
 
   socket.on('userInfo', ({ userName, color, rounds }) => {
     const curUser = gameState[`${roomId}`].users[socket.id];
+    const isReady = helperFunctions.checkIfReady(curUser);
     const updatedUser = {
       ...curUser,
       userName: userName,
       color: color,
+      isReady: isReady,
     };
     gameState[`${roomId}`].users[socket.id] = updatedUser;
     if (curUser.isHost) {
@@ -57,7 +59,6 @@ io.on('connection', async (socket) => {
     io.to(`${roomId}`).emit('playerInfo', usersArray);
     io.to(`${socket.id}`).emit(
       'getGameState',
-      gameState[`${roomId}`].paragraph,
       gameState[`${roomId}`].rounds, //test rounds assignment
       gameState[`${roomId}`].currRound,
     ); // emit paragraph once only to user

@@ -42,7 +42,7 @@ async function joinUser(
       insertSymbols: false,
     },
     appliedPUs: {
-      scrambleWord: false,
+      scrambleWord: true,
       insertLongWord: false,
       insertSymbols: false,
     },
@@ -94,9 +94,20 @@ function getPlayers(
   return usersArray;
 }
 
+function checkIfReady(player: Iuser): boolean {
+  let isReady;
+  if (Object.values(player.availablePUs).some((el) => el)) {
+    isReady = false;
+  } else {
+    isReady = true;
+  }
+  return isReady;
+}
+
 export default {
   getRandomParagraph,
   joinUser,
   calculateResults,
   getPlayers,
+  checkIfReady,
 };
