@@ -48,10 +48,14 @@ const scraper = (url) => __awaiter(void 0, void 0, void 0, function* () {
     yield index_1.default.sync();
     const scrapeResult = yield scraper(url);
     scrapeResult.forEach((el) => {
+        const characterLengthNumeric = parseInt(el[1]);
         paragraph_1.default.create({
             text: el[0],
             difficultyRating: el[2],
             characterLength: el[1],
+            characterLengthNumeric: !isNaN(characterLengthNumeric)
+                ? characterLengthNumeric
+                : null,
         });
     });
     console.log('Scraping has finished! Yippee!');
