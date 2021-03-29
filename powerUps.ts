@@ -42,6 +42,7 @@ const insertLongWord = (text: string): string => {
     'counterrevolutionist',
     'incomprehensibilities',
     'asynchronous',
+    'hippopotomonstrosesquippedaliophobia',
   ];
   const randomLongWord =
     longWords[Math.floor(Math.random() * longWords.length)];

@@ -1,6 +1,7 @@
 // import { unregisterCustomQueryHandler } from 'puppeteer';
 // import { Socket } from 'socket.io';
 import Paragraph from './schemas/paragraph';
+import powerUps from './powerUps';
 import IWpmCalculation from './interfaces/calcutaltion.interface';
 import gameState from './interfaces/gameState.interface';
 import Iuser from './interfaces/user.interface';
@@ -37,12 +38,12 @@ async function joinUser(
     gameData: {},
     userParagraph: gameState[roomId].paragraph,
     availablePUs: {
-      scrambleWord: false,
+      scrambleWord: false, //TODO: change back to false!
       insertLongWord: false,
       insertSymbols: false,
     },
     appliedPUs: {
-      scrambleWord: true,
+      scrambleWord: false,
       insertLongWord: false,
       insertSymbols: false,
     },
