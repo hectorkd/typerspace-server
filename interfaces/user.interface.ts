@@ -8,7 +8,7 @@ export default interface Iuser {
   isHost: boolean;
   gameData: IgameData;
   userParagraph: string;
-  appliedPUs: IpowerUps;
-  availablePUs: IpowerUps;
+  appliedPUs: { id: string; powerUp: string }[][];
+  availablePUs: { id: string; powerUp: string }[][];
   isReady: boolean;
 }

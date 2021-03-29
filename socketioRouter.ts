@@ -67,37 +67,50 @@ io.on('connection', async (socket) => {
 
   socket.on('applyPower', ({ power, userName }) => {
     //TODO: refactor! keep smth in helper function
+    console.log(power, userName);
     //apply power to chosen user and update available power ups for current user
     const curUser = gameState[`${roomId}`].users[socket.id];
     const loser = Object.values(gameState[`${roomId}`].users).filter(
       (user) => user.userName === userName,
     )[0];
     let updatedParagraph = '';
-    const appliedPUs = loser.appliedPUs;
-    const availablePUs = curUser.availablePUs;
+    let newPowerups: any = [];
+    let appliedPUs = loser.appliedPUs;
     if (power === 'scramble') {
       updatedParagraph = powerUps.scrambleWord(loser.userParagraph);
-      appliedPUs.scrambleWord = true;
-      availablePUs.scrambleWord = false;
+      newPowerups = [
+        ...loser.appliedPUs,
+        { id: 'scramble', powerUp: 'ScrambleCard' },
+      ];
+      console.log('applied power ups', appliedPUs);
+      // appliedPUs.scrambleWord = true;
+      // availablePUs.scrambleWord = false;
     } else if (power === 'longWord') {
       updatedParagraph = powerUps.insertLongWord(loser.userParagraph);
-      appliedPUs.insertLongWord = true;
-      availablePUs.insertLongWord = false;
+      newPowerups = [
+        ...loser.appliedPUs,
+        { id: 'longWord', powerUp: 'LongWordCard' },
+      ];
+      // appliedPUs.concat([{ id: 'longWord', powerUp: 'LongWordCard' }]);
+      // appliedPUs.insertLongWord = true;
     } else if (power === 'symbols') {
       updatedParagraph = powerUps.insertSymbols(loser.userParagraph);
-      appliedPUs.insertSymbols = true;
-      availablePUs.insertSymbols = false;
+      newPowerups = [
+        ...loser.appliedPUs,
+        { id: 'symbols', powerUp: 'SymbolsCard' },
+      ];
+      // appliedPUs.concat([{ id: 'symbols', powerUp: 'SymbolsCard' }]);
+      // appliedPUs.insertSymbols = true;
     }
     const updatedLoser = {
       ...loser,
       userParagraph: updatedParagraph,
-      appliedPUs: appliedPUs,
+      appliedPUs: newPowerups,
     };
-    const isReady = helperFunctions.checkIfReady(curUser);
     const updatedcurUser = {
       ...curUser,
-      availableUPs: availablePUs,
-      isReady: isReady,
+      availablePUs: [],
+      isReady: true,
     };
     gameState[`${roomId}`].users[loser.userId] = updatedLoser;
     gameState[`${roomId}`].users[socket.id] = updatedcurUser;

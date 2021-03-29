@@ -41,16 +41,20 @@ async function joinUser(
     isReady: false,
     gameData: {},
     userParagraph: gameState[roomId].paragraph,
-    availablePUs: {
-      scrambleWord: false, //TODO: change back to false!
-      insertLongWord: false,
-      insertSymbols: false,
-    },
-    appliedPUs: {
-      scrambleWord: false,
-      insertLongWord: false,
-      insertSymbols: false,
-    },
+    availablePUs: isHost
+      ? [{ id: 'scramble', powerUp: 'ScrambleCard' }]
+      : [{ id: 'symbols', powerUp: 'SymbolsCard' }],
+    appliedPUs: [],
+    // availablePUs: {
+    //   scrambleWord: false, //TODO: change back to false!
+    //   insertLongWord: false,
+    //   insertSymbols: false,
+    // },
+    // appliedPUs: {
+    //   scrambleWord: false,
+    //   insertLongWord: false,
+    //   insertSymbols: false,
+    // },
   };
   // const newGameState: Iuser = gameState[roomId].users[socketId]
 }
@@ -101,10 +105,10 @@ function getPlayers(
 
 function checkIfReady(player: Iuser): boolean {
   let isReady;
-  if (Object.values(player.availablePUs).some((el) => el)) {
-    isReady = false;
-  } else {
+  if (player.availablePUs.length === 0) {
     isReady = true;
+  } else {
+    isReady = false;
   }
   return isReady;
 }
