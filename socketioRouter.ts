@@ -2,15 +2,16 @@ import app from './index';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import helperFunctions from './socketHelperFunctions';
+import powerUps from './powerUps';
 import IgameState from './interfaces/gameState.interface';
 import Iuser from './interfaces/user.interface';
 
 const gameState: IgameState = {};
 
-console.log('befor the server is created');
+// console.log('befor the server is created');
 
 const server = createServer(app);
-console.log('inbetween server and io');
+// console.log('inbetween server and io');
 
 const io = new Server(server, {
   cors: {
@@ -19,7 +20,7 @@ const io = new Server(server, {
   },
 });
 
-console.log('You made it here, woooooooo');
+// console.log('You made it here, woooooooo');
 
 io.on('connection', async (socket) => {
   const { roomId } = socket.handshake.query;
@@ -41,20 +42,67 @@ io.on('connection', async (socket) => {
       console.error(err);
     });
 
-  socket.on('userInfo', ({ userName, color }) => {
+  socket.on('userInfo', ({ userName, color, rounds }) => {
     const curUser = gameState[`${roomId}`].users[socket.id];
+    const isReady = helperFunctions.checkIfReady(curUser);
     const updatedUser = {
       ...curUser,
       userName: userName,
       color: color,
+      isReady: isReady,
     };
     gameState[`${roomId}`].users[socket.id] = updatedUser;
+    if (curUser.isHost) {
+      gameState[`${roomId}`].rounds = parseInt(rounds);
+      gameState[`${roomId}`].currRound = 1;
+    }
     const usersArray = helperFunctions.getPlayers(gameState, roomId);
     io.to(`${roomId}`).emit('playerInfo', usersArray);
     io.to(`${socket.id}`).emit(
-      'getParagraph',
-      gameState[`${roomId}`].paragraph,
+      'getGameState',
+      gameState[`${roomId}`].rounds, //test rounds assignment
+      gameState[`${roomId}`].currRound,
     ); // emit paragraph once only to user
+  });
+
+  socket.on('applyPower', ({ power, userName }) => {
+    //TODO: refactor! keep smth in helper function
+    //apply power to chosen user and update available power ups for current user
+    const curUser = gameState[`${roomId}`].users[socket.id];
+    const loser = Object.values(gameState[`${roomId}`].users).filter(
+      (user) => user.userName === userName,
+    )[0];
+    let updatedParagraph = '';
+    const appliedPUs = loser.appliedPUs;
+    const availablePUs = curUser.availablePUs;
+    if (power === 'scramble') {
+      updatedParagraph = powerUps.scrambleWord(loser.userParagraph);
+      appliedPUs.scrambleWord = true;
+      availablePUs.scrambleWord = false;
+    } else if (power === 'longWord') {
+      updatedParagraph = powerUps.insertLongWord(loser.userParagraph);
+      appliedPUs.insertLongWord = true;
+      availablePUs.insertLongWord = false;
+    } else if (power === 'symbols') {
+      updatedParagraph = powerUps.insertSymbols(loser.userParagraph);
+      appliedPUs.insertSymbols = true;
+      availablePUs.insertSymbols = false;
+    }
+    const updatedLoser = {
+      ...loser,
+      userParagraph: updatedParagraph,
+      appliedPUs: appliedPUs,
+    };
+    const isReady = helperFunctions.checkIfReady(curUser);
+    const updatedcurUser = {
+      ...curUser,
+      availableUPs: availablePUs,
+      isReady: isReady,
+    };
+    gameState[`${roomId}`].users[loser.userId] = updatedLoser;
+    gameState[`${roomId}`].users[socket.id] = updatedcurUser;
+    const usersArray = helperFunctions.getPlayers(gameState, roomId);
+    io.to(`${roomId}`).emit('playerInfo', usersArray);
   });
 
   socket.on('syncStart', () => {
@@ -110,6 +158,8 @@ io.on('connection', async (socket) => {
   socket.on('playAgain', () => {
     const usersInRoom = gameState[`${roomId}`].users;
     for (const user in usersInRoom) {
+      //TODO: calculate rank before cleaning gameData
+      //TODO: update currRound!
       const newUserInfo: Iuser = {
         ...usersInRoom[user],
         gameData: {
