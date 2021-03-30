@@ -1,9 +1,11 @@
 const scrambleWord = (text: string): string => {
   //scramble random word
   const words = text.split(' ');
-  const randomWordIndex = Math.floor(Math.random() * words.length);
-  const scrambleWord = shuffle(words[randomWordIndex]);
-  words[randomWordIndex] = scrambleWord;
+  for (let i = 0; i < 5; i++) {
+    const randomWordIndex = Math.floor(Math.random() * words.length);
+    const scrambleWord = shuffle(words[randomWordIndex]);
+    words[randomWordIndex] = scrambleWord;
+  }
   return words.join(' ');
 };
 
@@ -85,16 +87,25 @@ const insertSymbols = (text: string): string => {
   ];
   let newString = '';
   let oldString = text;
-  let textLength = text.length;
+  const textLength = text.length;
   const start = 0;
-  while (textLength > 3) {
+  // while (textLength > 3) {
+  //   const randomSymbolIndex = Math.floor(Math.random() * symbols.length);
+  //   const end = Math.floor(Math.random() * textLength);
+  //   newString += oldString.slice(start, end) + symbols[randomSymbolIndex];
+  //   oldString = oldString.slice(end);
+  //   textLength = oldString.length;
+  // }
+  // newString += oldString;
+  for (let i = 0; i < 15; i++) {
     const randomSymbolIndex = Math.floor(Math.random() * symbols.length);
     const end = Math.floor(Math.random() * textLength);
-    newString += oldString.slice(start, end) + symbols[randomSymbolIndex];
-    oldString = oldString.slice(end);
-    textLength = oldString.length;
+    newString =
+      oldString.slice(start, end) +
+      symbols[randomSymbolIndex] +
+      oldString.slice(end);
+    oldString = newString;
   }
-  newString += oldString;
   return newString;
 };
 
