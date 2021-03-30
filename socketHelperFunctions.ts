@@ -30,7 +30,7 @@ async function joinUser(
   let isHost = false;
   if (!gameState[roomId]) {
     // const paragraph: string | undefined = await getRandomParagraph();
-    const paragraph = 'Test paragraph not long not short';
+    const paragraph = 'Test';
     gameState[roomId] = { users: {}, paragraph: paragraph };
     isHost = true;
   }
@@ -43,9 +43,7 @@ async function joinUser(
     gameData: {},
     WPMHistory: [],
     userParagraph: gameState[roomId].paragraph,
-    availablePUs: isHost
-      ? [{ id: 'scramble', powerUp: 'ScrambleCard' }]
-      : [{ id: 'symbols', powerUp: 'SymbolsCard' }],
+    availablePUs: [],
     appliedPUs: [],
   };
 }

@@ -161,7 +161,7 @@ io.on('connection', async (socket) => {
   socket.on('nextRound', async () => {
     const usersInRoom = gameState[`${roomId}`].users;
     //sort players by average wpm
-    const usersArray = helperFunctions.getPlayers(gameState, roomId);
+    let usersArray = helperFunctions.getPlayers(gameState, roomId);
     usersArray.sort((a, b): number => {
       return b.WPMAverage - a.WPMAverage;
     });
@@ -178,7 +178,6 @@ io.on('connection', async (socket) => {
     gameState[`${roomId}`] = newGameState;
     //update ranks, assign power ups and clean gamedata
     const powers = helperFunctions.givePowers(usersArray.length);
-    console.log(powers);
     for (const user in usersInRoom) {
       const newRank = usersArray.findIndex((el) => el.userId === user) + 1;
       const updatedUser: Iuser = {
@@ -196,9 +195,10 @@ io.on('connection', async (socket) => {
       };
       usersInRoom[user] = updatedUser;
     }
-    console.log(usersInRoom);
     //send everyone to lobby
     //send players info
+    usersArray = helperFunctions.getPlayers(gameState, roomId);
+    console.log(usersArray);
     io.to(`${roomId}`).emit('playerInfo', usersArray);
     socket.to(`${roomId}`).emit('navigateToLobby');
     io.to(`${socket.id}`).emit(
