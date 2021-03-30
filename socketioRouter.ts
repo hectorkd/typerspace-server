@@ -37,7 +37,7 @@ io.on('connection', async (socket) => {
       console.error(err);
     });
 
-  socket.on('userInfo', ({ userName, color, rounds }) => {
+  socket.on('userInfo', ({ userName, color, rounds, gamemode }) => {
     const curUser = gameState[`${roomId}`].users[socket.id];
     const isReady = helperFunctions.checkIfReady(curUser);
     const updatedUser = {
@@ -49,6 +49,7 @@ io.on('connection', async (socket) => {
     gameState[`${roomId}`].users[socket.id] = updatedUser;
     if (curUser.isHost) {
       gameState[`${roomId}`].rounds = parseInt(rounds);
+      gameState[`${roomId}`].gamemode = gamemode;
       gameState[`${roomId}`].currRound = 1;
     }
     const usersArray = helperFunctions.getPlayers(gameState, roomId);
@@ -57,6 +58,7 @@ io.on('connection', async (socket) => {
       'getGameState',
       gameState[`${roomId}`].rounds,
       gameState[`${roomId}`].currRound,
+      gameState[`${roomId}`].gamemode,
     );
   });
 
@@ -70,7 +72,7 @@ io.on('connection', async (socket) => {
     )[0];
     let updatedParagraph = '';
     let newPowerups: any = [];
-    let appliedPUs = loser.appliedPUs;
+    const appliedPUs = loser.appliedPUs;
     if (power === 'scramble') {
       updatedParagraph = powerUps.scrambleWord(loser.userParagraph);
       newPowerups = [
@@ -155,6 +157,7 @@ io.on('connection', async (socket) => {
         'getGameState',
         gameState[`${roomId}`].rounds,
         gameState[`${roomId}`].currRound,
+        gameState[`${roomId}`].gamemode,
       );
     },
   );
@@ -215,6 +218,7 @@ io.on('connection', async (socket) => {
       'getGameState',
       gameState[`${roomId}`].rounds,
       gameState[`${roomId}`].currRound,
+      gameState[`${roomId}`].gamemode,
     );
   });
 

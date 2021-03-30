@@ -5,6 +5,7 @@ export default interface IgameState {
     users: {
       [socketId: string]: Iuser;
     };
+    gamemode: string;
     rounds: number;
     currRound: number;
     startTime: number;
