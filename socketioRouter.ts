@@ -39,13 +39,13 @@ io.on('connection', async (socket) => {
 
   socket.on('userInfo', ({ userName, color, rounds }) => {
     const curUser = gameState[`${roomId}`].users[socket.id];
-    const isReady = helperFunctions.checkIfReady(curUser);
     const updatedUser = {
       ...curUser,
       userName: userName,
       color: color,
-      isReady: isReady,
     };
+    const isReady = helperFunctions.checkIfReady(updatedUser);
+    updatedUser.isReady = isReady;
     gameState[`${roomId}`].users[socket.id] = updatedUser;
     if (curUser.isHost) {
       gameState[`${roomId}`].rounds = parseInt(rounds);
@@ -193,6 +193,8 @@ io.on('connection', async (socket) => {
           accuracy: undefined,
         },
       };
+      const isReady = helperFunctions.checkIfReady(updatedUser);
+      updatedUser.isReady = isReady;
       usersInRoom[user] = updatedUser;
     }
     //send everyone to lobby

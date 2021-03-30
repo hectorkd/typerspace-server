@@ -99,9 +99,12 @@ function getPlayers(
 }
 
 function checkIfReady(player: Iuser): boolean {
-  //TODO: check if user has name and color to be ready!
   let isReady;
-  if (player.availablePUs.length === 0) {
+  if (
+    player.availablePUs.length === 0 &&
+    player.userName !== 'Guest' &&
+    player.color !== ''
+  ) {
     isReady = true;
   } else {
     isReady = false;
