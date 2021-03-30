@@ -47,18 +47,7 @@ async function joinUser(
       ? [{ id: 'scramble', powerUp: 'ScrambleCard' }]
       : [{ id: 'symbols', powerUp: 'SymbolsCard' }],
     appliedPUs: [],
-    // availablePUs: {
-    //   scrambleWord: false, //TODO: change back to false!
-    //   insertLongWord: false,
-    //   insertSymbols: false,
-    // },
-    // appliedPUs: {
-    //   scrambleWord: false,
-    //   insertLongWord: false,
-    //   insertSymbols: false,
-    // },
   };
-  // const newGameState: Iuser = gameState[roomId].users[socketId]
 }
 
 function calculateResults(
@@ -69,9 +58,7 @@ function calculateResults(
 ): IWpmCalculation {
   const { minutes, remainder, time } = calculateTime(endTime, startTime);
   const seconds = remainder < 10 ? `0${remainder}` : remainder;
-  // console.log({ minutes, remainder, time });
   const wpm = calculateWpm(charLength, time);
-  // console.log('wpm', wpm);
   const accuracy = calculateAccuracy(allKeyPresses, charLength);
   return { finishTime: `${minutes}:${seconds}`, WPM: wpm, accuracy };
 }
@@ -94,6 +81,14 @@ function calculateAccuracy(allKeyPresses: number, charLength: number): number {
   return accuracy;
 }
 
+function calculateAverageWPM(user: Iuser, WPM: number): any {
+  const newWPMHistory = user.WPMHistory;
+  newWPMHistory.push(WPM);
+  const newAVG =
+    newWPMHistory.reduce((total, WPM) => total + WPM) / newWPMHistory.length;
+  return { newWPMHistory, newAVG };
+}
+
 function getPlayers(
   gameState: gameState,
   roomId: string | string[] | undefined,
@@ -106,6 +101,7 @@ function getPlayers(
 }
 
 function checkIfReady(player: Iuser): boolean {
+  //TODO: check if user has name and color to be ready!
   let isReady;
   if (player.availablePUs.length === 0) {
     isReady = true;
@@ -115,10 +111,29 @@ function checkIfReady(player: Iuser): boolean {
   return isReady;
 }
 
+function givePowers(players: number): any {
+  const powers = [
+    { id: 'scramble', powerUp: 'ScrambleCard' },
+    { id: 'longWord', powerUp: 'LongWordCard' },
+    { id: 'symbols', powerUp: 'SymbolsCard' },
+  ];
+  const res = [];
+  for (let i = 1; i < players; i++) {
+    if (powers.length > 0) {
+      const randomPower = Math.floor(Math.random() * powers.length);
+      const power = powers.splice(randomPower, 1);
+      res.push({ rank: players - i + 1, power: power[0] });
+    }
+  }
+  return res;
+}
+
 export default {
   getRandomParagraph,
   joinUser,
   calculateResults,
+  calculateAverageWPM,
   getPlayers,
   checkIfReady,
+  givePowers,
 };
