@@ -206,12 +206,12 @@ io.on('connection', async (socket) => {
       return a.rank - b.rank;
     });
     io.to(`${roomId}`).emit('playerInfo', usersArray);
-    socket.to(`${roomId}`).emit('navigateToLobby');
     io.to(`${socket.id}`).emit(
       'getGameState',
       gameState[`${roomId}`].rounds,
       gameState[`${roomId}`].currRound,
     );
+    socket.to(`${roomId}`).emit('navigateToLobby');
   });
 
   socket.on('getParagraph', async () => {
