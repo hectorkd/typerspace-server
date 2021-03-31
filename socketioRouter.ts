@@ -208,6 +208,7 @@ io.on('connection', async (socket) => {
     usersArray.sort((a, b): number => {
       return a.rank - b.rank;
     });
+    io.to(`${roomId}`).emit('navigateToLobby');
     io.to(`${roomId}`).emit('playerInfo', usersArray);
     io.to(`${socket.id}`).emit(
       'getGameState',
@@ -215,7 +216,6 @@ io.on('connection', async (socket) => {
       gameState[`${roomId}`].currRound,
       gameState[`${roomId}`].gamemode,
     );
-    socket.to(`${roomId}`).emit('navigateToLobby');
   });
 
   socket.on('getParagraph', async () => {
