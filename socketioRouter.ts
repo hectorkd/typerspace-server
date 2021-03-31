@@ -39,13 +39,13 @@ io.on('connection', async (socket) => {
 
   socket.on('userInfo', ({ userName, color, rounds, gamemode }) => {
     const curUser = gameState[`${roomId}`].users[socket.id];
-    const isReady = helperFunctions.checkIfReady(curUser);
     const updatedUser = {
       ...curUser,
       userName: userName,
       color: color,
-      isReady: isReady,
     };
+    const isReady = helperFunctions.checkIfReady(updatedUser);
+    updatedUser.isReady = isReady;
     gameState[`${roomId}`].users[socket.id] = updatedUser;
     if (curUser.isHost) {
       gameState[`${roomId}`].rounds = parseInt(rounds);
@@ -64,7 +64,6 @@ io.on('connection', async (socket) => {
 
   socket.on('applyPower', ({ power, userName }) => {
     //TODO: refactor! keep smth in helper function
-    console.log(power, userName);
     //apply power to chosen user and update available power ups for current user
     const curUser = gameState[`${roomId}`].users[socket.id];
     const loser = Object.values(gameState[`${roomId}`].users).filter(
@@ -72,32 +71,24 @@ io.on('connection', async (socket) => {
     )[0];
     let updatedParagraph = '';
     let newPowerups: any = [];
-    const appliedPUs = loser.appliedPUs;
     if (power === 'scramble') {
       updatedParagraph = powerUps.scrambleWord(loser.userParagraph);
       newPowerups = [
         ...loser.appliedPUs,
         { id: 'scramble', powerUp: 'ScrambleCard' },
       ];
-      console.log('applied power ups', appliedPUs);
-      // appliedPUs.scrambleWord = true;
-      // availablePUs.scrambleWord = false;
     } else if (power === 'longWord') {
       updatedParagraph = powerUps.insertLongWord(loser.userParagraph);
       newPowerups = [
         ...loser.appliedPUs,
         { id: 'longWord', powerUp: 'LongWordCard' },
       ];
-      // appliedPUs.concat([{ id: 'longWord', powerUp: 'LongWordCard' }]);
-      // appliedPUs.insertLongWord = true;
     } else if (power === 'symbols') {
       updatedParagraph = powerUps.insertSymbols(loser.userParagraph);
       newPowerups = [
         ...loser.appliedPUs,
         { id: 'symbols', powerUp: 'SymbolsCard' },
       ];
-      // appliedPUs.concat([{ id: 'symbols', powerUp: 'SymbolsCard' }]);
-      // appliedPUs.insertSymbols = true;
     }
     const updatedLoser = {
       ...loser,
@@ -146,11 +137,19 @@ io.on('connection', async (socket) => {
         allKeyPresses,
         length,
       );
-      gameState[`${roomId}`].users[socket.id].gameData = {
-        finishTime,
+      const currUser = gameState[`${roomId}`].users[socket.id];
+      //calculate new average wpm for a palyer
+      const { newWPMHistory, newAVG } = helperFunctions.calculateAverageWPM(
+        currUser,
         WPM,
-        accuracy,
+      );
+      const updatedCurUSer = {
+        ...currUser,
+        WPMHistory: newWPMHistory,
+        WPMAverage: newAVG,
+        gameData: { finishTime, WPM, accuracy },
       };
+      gameState[`${roomId}`].users[socket.id] = updatedCurUSer;
       const usersArray = helperFunctions.getPlayers(gameState, roomId);
       io.to(`${roomId}`).emit('results', usersArray);
       io.to(`${socket.id}`).emit(
@@ -163,55 +162,48 @@ io.on('connection', async (socket) => {
   );
 
   socket.on('nextRound', async () => {
-    //calculate new average wpm for every player
     const usersInRoom = gameState[`${roomId}`].users;
-    for (const user in usersInRoom) {
-      const newWPMHistory = usersInRoom[user].WPMHistory;
-      newWPMHistory.push(usersInRoom[user].gameData.WPM!);
-      const newAVG =
-        newWPMHistory.reduce((total, WPM) => total + WPM) /
-        newWPMHistory.length;
-      const updatedUser = {
-        ...usersInRoom[user],
-        WPMHistory: newWPMHistory,
-        WPMAverage: newAVG,
-      };
-      usersInRoom[user] = updatedUser;
-    }
     //sort players by average wpm
-    const usersArray = helperFunctions.getPlayers(gameState, roomId);
+    let usersArray = helperFunctions.getPlayers(gameState, roomId);
     usersArray.sort((a, b): number => {
       return b.WPMAverage - a.WPMAverage;
     });
-    //get new parapraph
-    //update currRound
+    //get new parapraph and update current round
     const newParagraph = await helperFunctions.getRandomParagraph();
     const newGameState = {
       ...gameState[`${roomId}`],
       paragraph: newParagraph,
-      currRound: gameState[`${roomId}`].currRound + 1,
+      currRound:
+        gameState[`${roomId}`].currRound + 1 < gameState[`${roomId}`].rounds
+          ? gameState[`${roomId}`].currRound + 1
+          : gameState[`${roomId}`].rounds,
     };
     gameState[`${roomId}`] = newGameState;
-    //update ranks
-    //clean gamedata
+    //update ranks, assign power ups and clean gamedata
+    const powers = helperFunctions.givePowers(usersArray.length);
     for (const user in usersInRoom) {
       const newRank = usersArray.findIndex((el) => el.userId === user) + 1;
-      console.log(newRank);
       const updatedUser: Iuser = {
         ...usersInRoom[user],
         userParagraph: gameState[`${roomId}`].paragraph!,
         rank: newRank,
+        availablePUs: powers.find((el: { rank: number }) => el.rank === newRank)
+          ? [powers.find((el: { rank: number }) => el.rank === newRank).power]
+          : [],
         gameData: {
           finishTime: '',
           WPM: undefined,
           accuracy: undefined,
         },
       };
+      const isReady = helperFunctions.checkIfReady(updatedUser);
+      updatedUser.isReady = isReady;
       usersInRoom[user] = updatedUser;
     }
-    console.log(usersInRoom);
     //send everyone to lobby
     //send players info
+    usersArray = helperFunctions.getPlayers(gameState, roomId);
+    console.log(usersArray);
     io.to(`${roomId}`).emit('playerInfo', usersArray);
     socket.to(`${roomId}`).emit('navigateToLobby');
     io.to(`${socket.id}`).emit(
