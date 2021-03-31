@@ -37,7 +37,7 @@ io.on('connection', async (socket) => {
       console.error(err);
     });
 
-  socket.on('userInfo', ({ userName, color, rounds, gamemode }) => {
+  socket.on('userInfo', ({ userName, color, rounds }) => {
     const curUser = gameState[`${roomId}`].users[socket.id];
     const updatedUser = {
       ...curUser,
@@ -49,7 +49,6 @@ io.on('connection', async (socket) => {
     gameState[`${roomId}`].users[socket.id] = updatedUser;
     if (curUser.isHost) {
       gameState[`${roomId}`].rounds = parseInt(rounds);
-      gameState[`${roomId}`].gamemode = gamemode;
       gameState[`${roomId}`].currRound = 1;
     }
     const usersArray = helperFunctions.getPlayers(gameState, roomId);
@@ -58,7 +57,6 @@ io.on('connection', async (socket) => {
       'getGameState',
       gameState[`${roomId}`].rounds,
       gameState[`${roomId}`].currRound,
-      gameState[`${roomId}`].gamemode,
     );
   });
 
@@ -156,7 +154,6 @@ io.on('connection', async (socket) => {
         'getGameState',
         gameState[`${roomId}`].rounds,
         gameState[`${roomId}`].currRound,
-        gameState[`${roomId}`].gamemode,
       );
     },
   );
@@ -172,7 +169,7 @@ io.on('connection', async (socket) => {
     const newParagraph = await helperFunctions.getRandomParagraph();
     const newGameState = {
       ...gameState[`${roomId}`],
-      paragraph: 'test paragraph',
+      paragraph: newParagraph,
       currRound:
         gameState[`${roomId}`].currRound + 1 < gameState[`${roomId}`].rounds
           ? gameState[`${roomId}`].currRound + 1
@@ -208,28 +205,26 @@ io.on('connection', async (socket) => {
     usersArray.sort((a, b): number => {
       return a.rank - b.rank;
     });
-    io.to(`${roomId}`).emit('navigateToLobby');
+    socket.to(`${roomId}`).emit('navigateToLobby');
     io.to(`${roomId}`).emit('playerInfo', usersArray);
     io.to(`${socket.id}`).emit(
       'getGameState',
       gameState[`${roomId}`].rounds,
       gameState[`${roomId}`].currRound,
-      gameState[`${roomId}`].gamemode,
     );
   });
 
-  socket.on('getParagraph', async () => {
+  // socket.on('getParagraph', async () => {
+  //   const newParagraph = await helperFunctions.getRandomParagraph();
+  //   const newGameState = { ...gameState[`${roomId}`], paragraph: newParagraph };
+  //   gameState[`${roomId}`] = newGameState;
+  //   io.to(`${roomId}`).emit('getParagraph', gameState[`${roomId}`].paragraph);
+  // });
+
+  socket.on('playAgain', async () => {
     const newParagraph = await helperFunctions.getRandomParagraph();
     const newGameState = { ...gameState[`${roomId}`], paragraph: newParagraph };
     gameState[`${roomId}`] = newGameState;
-    io.to(`${roomId}`).emit('getParagraph', gameState[`${roomId}`].paragraph);
-  });
-
-  socket.on('sendToFinal', () => {
-    io.to(`${roomId}`).emit('navigateToFinal');
-  });
-
-  socket.on('playAgain', () => {
     const usersInRoom = gameState[`${roomId}`].users;
     for (const user in usersInRoom) {
       const newUserInfo: Iuser = {
@@ -239,12 +234,20 @@ io.on('connection', async (socket) => {
           WPM: undefined,
           accuracy: undefined,
         },
+        appliedPUs: [],
+        availablePUs: [],
+        WPMHistory: [],
+        userParagraph: gameState[`${roomId}`].paragraph!,
       };
       usersInRoom[user] = newUserInfo;
     }
     const usersArray = helperFunctions.getPlayers(gameState, roomId);
     io.to(`${roomId}`).emit('playerInfo', usersArray);
     socket.to(`${roomId}`).emit('navigateToLobby');
+  });
+
+  socket.on('sendToFinal', () => {
+    io.to(`${roomId}`).emit('navigateToFinal');
   });
 
   socket.on('disconnect', () => {
