@@ -223,7 +223,11 @@ io.on('connection', async (socket) => {
 
   socket.on('playAgain', async () => {
     const newParagraph = await helperFunctions.getRandomParagraph();
-    const newGameState = { ...gameState[`${roomId}`], paragraph: newParagraph };
+    const newGameState = {
+      ...gameState[`${roomId}`],
+      paragraph: newParagraph,
+      currRound: gameState[`${roomId}`].rounds && 1,
+    };
     gameState[`${roomId}`] = newGameState;
     const usersInRoom = gameState[`${roomId}`].users;
     for (const user in usersInRoom) {
