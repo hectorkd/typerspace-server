@@ -187,6 +187,7 @@ io.on('connection', async (socket) => {
         ...usersInRoom[user],
         userParagraph: gameState[`${roomId}`].paragraph!,
         rank: newRank,
+        appliedPUs: [],
         availablePUs: powers.find((el: { rank: number }) => el.rank === newRank)
           ? [powers.find((el: { rank: number }) => el.rank === newRank).power]
           : [],
@@ -203,15 +204,18 @@ io.on('connection', async (socket) => {
     //send everyone to lobby
     //send players info
     usersArray = helperFunctions.getPlayers(gameState, roomId);
-    console.log(usersArray);
+    //sort by rank
+    usersArray.sort((a, b): number => {
+      return a.rank - b.rank;
+    });
     io.to(`${roomId}`).emit('playerInfo', usersArray);
-    socket.to(`${roomId}`).emit('navigateToLobby');
     io.to(`${socket.id}`).emit(
       'getGameState',
       gameState[`${roomId}`].rounds,
       gameState[`${roomId}`].currRound,
       gameState[`${roomId}`].gamemode,
     );
+    socket.to(`${roomId}`).emit('navigateToLobby');
   });
 
   socket.on('getParagraph', async () => {
