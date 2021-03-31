@@ -214,13 +214,6 @@ io.on('connection', async (socket) => {
     );
   });
 
-  // socket.on('getParagraph', async () => {
-  //   const newParagraph = await helperFunctions.getRandomParagraph();
-  //   const newGameState = { ...gameState[`${roomId}`], paragraph: newParagraph };
-  //   gameState[`${roomId}`] = newGameState;
-  //   io.to(`${roomId}`).emit('getParagraph', gameState[`${roomId}`].paragraph);
-  // });
-
   socket.on('playAgain', async () => {
     const newParagraph = await helperFunctions.getRandomParagraph();
     const newGameState = {
@@ -248,6 +241,11 @@ io.on('connection', async (socket) => {
     const usersArray = helperFunctions.getPlayers(gameState, roomId);
     io.to(`${roomId}`).emit('playerInfo', usersArray);
     socket.to(`${roomId}`).emit('navigateToLobby');
+    io.to(`${socket.id}`).emit(
+      'getGameState',
+      gameState[`${roomId}`].rounds,
+      gameState[`${roomId}`].currRound,
+    );
   });
 
   socket.on('sendToFinal', () => {
