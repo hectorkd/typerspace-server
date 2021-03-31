@@ -37,7 +37,7 @@ io.on('connection', async (socket) => {
       console.error(err);
     });
 
-  socket.on('userInfo', ({ userName, color, rounds }) => {
+  socket.on('userInfo', ({ userName, color, rounds, gamemode }) => {
     const curUser = gameState[`${roomId}`].users[socket.id];
     const updatedUser = {
       ...curUser,
@@ -49,6 +49,7 @@ io.on('connection', async (socket) => {
     gameState[`${roomId}`].users[socket.id] = updatedUser;
     if (curUser.isHost) {
       gameState[`${roomId}`].rounds = parseInt(rounds);
+      gameState[`${roomId}`].gamemode = gamemode;
       gameState[`${roomId}`].currRound = 1;
     }
     const usersArray = helperFunctions.getPlayers(gameState, roomId);
@@ -57,6 +58,7 @@ io.on('connection', async (socket) => {
       'getGameState',
       gameState[`${roomId}`].rounds,
       gameState[`${roomId}`].currRound,
+      gameState[`${roomId}`].gamemode,
     );
   });
 
@@ -154,6 +156,7 @@ io.on('connection', async (socket) => {
         'getGameState',
         gameState[`${roomId}`].rounds,
         gameState[`${roomId}`].currRound,
+        gameState[`${roomId}`].gamemode,
       );
     },
   );
@@ -169,7 +172,7 @@ io.on('connection', async (socket) => {
     const newParagraph = await helperFunctions.getRandomParagraph();
     const newGameState = {
       ...gameState[`${roomId}`],
-      paragraph: newParagraph,
+      paragraph: 'test paragraph',
       currRound:
         gameState[`${roomId}`].currRound + 1 < gameState[`${roomId}`].rounds
           ? gameState[`${roomId}`].currRound + 1
@@ -205,13 +208,14 @@ io.on('connection', async (socket) => {
     usersArray.sort((a, b): number => {
       return a.rank - b.rank;
     });
+    io.to(`${roomId}`).emit('navigateToLobby');
     io.to(`${roomId}`).emit('playerInfo', usersArray);
     io.to(`${socket.id}`).emit(
       'getGameState',
       gameState[`${roomId}`].rounds,
       gameState[`${roomId}`].currRound,
+      gameState[`${roomId}`].gamemode,
     );
-    socket.to(`${roomId}`).emit('navigateToLobby');
   });
 
   socket.on('getParagraph', async () => {
@@ -219,6 +223,10 @@ io.on('connection', async (socket) => {
     const newGameState = { ...gameState[`${roomId}`], paragraph: newParagraph };
     gameState[`${roomId}`] = newGameState;
     io.to(`${roomId}`).emit('getParagraph', gameState[`${roomId}`].paragraph);
+  });
+
+  socket.on('sendToFinal', () => {
+    io.to(`${roomId}`).emit('navigateToFinal');
   });
 
   socket.on('playAgain', () => {
