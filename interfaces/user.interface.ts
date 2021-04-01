@@ -6,4 +6,11 @@ export default interface Iuser {
   color: string;
   isHost: boolean;
   gameData: IgameData;
+  userParagraph: string;
+  appliedPUs: { id: string; powerUp: string }[];
+  availablePUs: { id: string; powerUp: string }[];
+  isReady: boolean;
+  rank: number;
+  WPMHistory: Array<number>;
+  WPMAverage: number;
 }
