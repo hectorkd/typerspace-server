@@ -29,8 +29,8 @@ async function joinUser(
 ): Promise<void> {
   let isHost = false;
   if (!gameState[roomId]) {
-    // const paragraph: string | undefined = await getRandomParagraph();
-    const paragraph = 'Test';
+    const paragraph: string | undefined = await getRandomParagraph();
+    // const paragraph = 'Test';
     gameState[roomId] = { users: {}, paragraph: paragraph };
     isHost = true;
   }
