@@ -1,8 +1,7 @@
 import { Request, Response } from 'express';
 import Paragraph from '../schemas/paragraph';
-import Sequelize, { Op } from 'sequelize';
+import { Op } from 'sequelize';
 import sequelize from '../models';
-// const Op = Sequelize.Op;
 
 async function getRandomParagraph(_: Request, res: Response): Promise<void> {
   try {
@@ -14,7 +13,6 @@ async function getRandomParagraph(_: Request, res: Response): Promise<void> {
         },
       },
     });
-    // console.log(`paragraph`, paragraph?.toJSON());
     res.status(200);
     res.send(`${paragraph?.characterLength}`);
   } catch (err) {

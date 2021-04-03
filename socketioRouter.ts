@@ -19,12 +19,6 @@ const io = new Server(server, {
 
 io.on('connection', async (socket) => {
   const { roomId } = socket.handshake.query;
-  console.log(
-    '------------ New ws connection for room',
-    roomId,
-    ' from ',
-    socket.id,
-  );
   socket.join(`${roomId}`);
 
   await helperFunctions
@@ -61,7 +55,6 @@ io.on('connection', async (socket) => {
   });
 
   socket.on('applyPower', ({ power, userName }) => {
-    //TODO: refactor! keep smth in helper function
     //apply power to chosen user and update available power ups for current user
     const curUser = gameState[`${roomId}`].users[socket.id];
     const loser = Object.values(gameState[`${roomId}`].users).filter(
@@ -101,6 +94,9 @@ io.on('connection', async (socket) => {
     gameState[`${roomId}`].users[loser.userId] = updatedLoser;
     gameState[`${roomId}`].users[socket.id] = updatedcurUser;
     const usersArray = helperFunctions.getPlayers(gameState, roomId);
+    usersArray.sort((a, b): number => {
+      return a.rank - b.rank;
+    });
     io.to(`${roomId}`).emit('playerInfo', usersArray);
   });
 
@@ -253,17 +249,11 @@ io.on('connection', async (socket) => {
   });
 
   socket.on('disconnect', () => {
-    // if (gameState[`${roomId}`].users[socket.id].isHost) {
-    //   io.to(`${roomId}`).emit('hostDisconnect');
-    //   socket.leave(`${roomId}`);
-    //   delete gameState[`${roomId}`];
-    // } else {
     delete gameState[`${roomId}`].users[socket.id];
     socket.leave(`${roomId}`);
     io.to(`${roomId}`).emit('playerDisconnect');
     const usersArray = helperFunctions.getPlayers(gameState, roomId);
     io.to(`${roomId}`).emit('playerInfo', usersArray);
-    // }
   });
 });
 

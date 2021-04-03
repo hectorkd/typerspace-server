@@ -10,13 +10,6 @@ const sequelize = new Sequelize(
     dialect: 'postgres',
     dialectOptions: { ssl: { rejectUnauthorized: false } },
   },
-  // `${process.env.DB_NAME}`,
-  // `${process.env.DB_USERNAME}`,
-  // `${process.env.DB_PASSWORD}`,
-  // {
-  //   host: `${process.env.HOST}`,
-  //   dialect: 'postgres',
-  // },
 );
 
 (async () => {
