@@ -89,14 +89,6 @@ const insertSymbols = (text: string): string => {
   let oldString = text;
   const textLength = text.length;
   const start = 0;
-  // while (textLength > 3) {
-  //   const randomSymbolIndex = Math.floor(Math.random() * symbols.length);
-  //   const end = Math.floor(Math.random() * textLength);
-  //   newString += oldString.slice(start, end) + symbols[randomSymbolIndex];
-  //   oldString = oldString.slice(end);
-  //   textLength = oldString.length;
-  // }
-  // newString += oldString;
   for (let i = 0; i < 15; i++) {
     const randomSymbolIndex = Math.floor(Math.random() * symbols.length);
     const end = Math.floor(Math.random() * textLength);
