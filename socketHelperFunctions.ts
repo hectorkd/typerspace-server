@@ -1,12 +1,7 @@
-// import { unregisterCustomQueryHandler } from 'puppeteer';
-// import { Socket } from 'socket.io';
 import Paragraph from './schemas/paragraph';
-import powerUps from './powerUps';
 import IWpmCalculation from './interfaces/calcutaltion.interface';
 import gameState from './interfaces/gameState.interface';
 import Iuser from './interfaces/user.interface';
-// import { time } from 'node:console';
-import { time } from 'node:console';
 import sequelize from './models';
 import { Op } from 'sequelize';
 
@@ -30,7 +25,6 @@ async function joinUser(
   let isHost = false;
   if (!gameState[roomId]) {
     const paragraph: string | undefined = await getRandomParagraph();
-    // const paragraph = 'Test';
     gameState[roomId] = { users: {}, paragraph: paragraph };
     isHost = true;
   }
@@ -83,7 +77,7 @@ function calculateAverageWPM(user: Iuser, WPM: number): any {
   const newWPMHistory = user.WPMHistory;
   newWPMHistory.push(WPM);
   const newAVG =
-    newWPMHistory.reduce((total, WPM) => total + WPM) / newWPMHistory.length;
+    Math.round(newWPMHistory.reduce((total, WPM) => total + WPM) / newWPMHistory.length);
   return { newWPMHistory, newAVG };
 }
 
